@@ -90,72 +90,91 @@ const QuoteManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation renforcée des articles
       for (const item of newQuote.items) {
-        if (!item.description || String(item.description).trim() === '' || Number(item.quantity) <= 0 || Number(item.unitPrice) <= 0) {
-          setError("Chaque article doit avoir une description, une quantité > 0 et un prix unitaire > 0");
-          alert("Chaque article doit avoir une description, une quantité > 0 et un prix unitaire > 0");
+        const description = item.description || item.productName || '';
+        const quantity = Number(item.quantity) || 0;
+        const unitPrice = Number(item.unitPrice) || 0;
+        
+        if (!description.trim()) {
+          setError("Chaque article doit avoir une description");
+          toast.error("Chaque article doit avoir une description");
+          return;
+        }
+        
+        if (quantity <= 0) {
+          setError("Chaque article doit avoir une quantité supérieure à 0");
+          toast.error("Chaque article doit avoir une quantité supérieure à 0");
+          return;
+        }
+        
+        if (unitPrice <= 0) {
+          setError("Chaque article doit avoir un prix unitaire supérieur à 0");
+          toast.error("Chaque article doit avoir un prix unitaire supérieur à 0");
           return;
         }
       }
-      if (calculateTotal() <= 0) {
+      
+      // Validation du total
+      const total = calculateTotal();
+      if (total <= 0) {
         setError("Le montant total doit être supérieur à 0");
-        alert("Le montant total doit être supérieur à 0");
+        toast.error("Le montant total doit être supérieur à 0");
         return;
       }
       
-      // ⚠️ VALIDATION : Vérifier que les données obligatoires sont présentes
+      // Validation des champs obligatoires
       if (!newQuote.clientName || newQuote.clientName.trim() === '') {
         setError("Le nom du client est obligatoire");
+        toast.error("Le nom du client est obligatoire");
         return;
       }
       
       if (!newQuote.clientEmail || newQuote.clientEmail.trim() === '') {
         setError("L'email du client est obligatoire");
+        toast.error("L'email du client est obligatoire");
         return;
       }
       
-      // ⚠️ CORRECTION : Préparer les données pour le serveur (sans items pour l'instant)
+      // ✅ CORRECTION : Préparer les données correctement
       const itemsToSend = newQuote.items.map(item => ({
-        productName: item.description || '',
-        productDescription: item.description || '',
+        productName: item.description || item.productName || '',
+        productDescription: item.description || item.productName || '',
         quantity: Number(item.quantity),
         unitPrice: Number(item.unitPrice),
         totalPrice: Number(item.quantity) * Number(item.unitPrice)
       }));
+      
       const dataToSend = {
         clientName: newQuote.clientName.trim(),
         clientEmail: newQuote.clientEmail.trim(),
         clientPhone: newQuote.clientPhone || '',
-        eventDate: newQuote.eventDate ? new Date(newQuote.eventDate).toISOString() : null,
+        eventDate: newQuote.eventDate ? newQuote.eventDate : null, // ✅ CORRECTION : Pas de conversion
         eventType: newQuote.eventType || '',
         eventLocation: newQuote.eventLocation || '',
-        totalAmount: calculateTotal(),
-        status: newQuote.status,
-        validUntil: newQuote.validUntil ? new Date(newQuote.validUntil).toISOString().split('T')[0] : null,
-        notes: `Articles: ${itemsToSend.map(item => 
-          `${item.productName} (${item.quantity}x${item.unitPrice})`
-        ).join(', ')}`,
+        totalAmount: total,
+        status: newQuote.status || 'DRAFT',
+        validUntil: newQuote.validUntil || null,
+        notes: newQuote.notes || '',
         items: itemsToSend
       };
 
-      console.log('Données envoyées:', dataToSend); // Debug
+      console.log('Données envoyées:', dataToSend);
       
       const response = await fetch('http://localhost:8082/api/admin/quotes', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Erreur serveur:', errorData); // Debug
-        throw new Error(errorData.error || 'Erreur lors de la création du devis');
+        console.error('Erreur serveur:', errorData);
+        throw new Error(errorData.message || errorData.error || 'Erreur lors de la création du devis');
       }
 
       const createdQuote = await response.json();
-      console.log('Réponse serveur:', createdQuote); // Debug
+      console.log('Réponse serveur:', createdQuote);
       
       setQuotes([...quotes, createdQuote]);
       setShowNewQuoteForm(false);
@@ -172,12 +191,12 @@ const QuoteManagement = () => {
         validUntil: '',
         notes: ''
       });
-      setError(null); // Effacer les erreurs précédentes
+      setError(null);
       toast.success('Devis créé avec succès !');
     } catch (error) {
-      console.error('Erreur complète:', error); // Debug
+      console.error('Erreur complète:', error);
       setError(error.message);
-      toast.error('Erreur lors de la création du devis');
+      toast.error('Erreur lors de la création du devis: ' + error.message);
     }
   };
 
@@ -332,47 +351,77 @@ const QuoteManagement = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validation renforcée des articles
       for (const item of editingQuote.items) {
-        if (!item.description || String(item.description).trim() === '' || Number(item.quantity) <= 0 || Number(item.unitPrice) <= 0) {
-          setError("Chaque article doit avoir une description, une quantité > 0 et un prix unitaire > 0");
-          alert("Chaque article doit avoir une description, une quantité > 0 et un prix unitaire > 0");
+        const description = item.description || item.productName || '';
+        const quantity = Number(item.quantity) || 0;
+        const unitPrice = Number(item.unitPrice) || 0;
+        
+        if (!description.trim()) {
+          setError("Chaque article doit avoir une description");
+          toast.error("Chaque article doit avoir une description");
+          return;
+        }
+        
+        if (quantity <= 0) {
+          setError("Chaque article doit avoir une quantité supérieure à 0");
+          toast.error("Chaque article doit avoir une quantité supérieure à 0");
+          return;
+        }
+        
+        if (unitPrice <= 0) {
+          setError("Chaque article doit avoir un prix unitaire supérieur à 0");
+          toast.error("Chaque article doit avoir un prix unitaire supérieur à 0");
           return;
         }
       }
-      const totalEdit = editingQuote.items.reduce((total, item) => total + ((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0)), 0);
+      
+      const totalEdit = calculateEditQuoteTotal();
       if (totalEdit <= 0) {
         setError("Le montant total doit être supérieur à 0");
-        alert("Le montant total doit être supérieur à 0");
+        toast.error("Le montant total doit être supérieur à 0");
         return;
       }
+      
+      // ✅ CORRECTION : Préparer les données correctement
       const itemsToSendEdit = editingQuote.items.map(item => ({
-        productName: item.description || '',
-        productDescription: item.description || '',
+        productName: item.description || item.productName || '',
+        productDescription: item.description || item.productName || '',
         quantity: Number(item.quantity),
         unitPrice: Number(item.unitPrice),
         totalPrice: Number(item.quantity) * Number(item.unitPrice)
       }));
+      
       const dataToSend = {
         ...editingQuote,
         totalAmount: totalEdit,
-        items: itemsToSendEdit
+        items: itemsToSendEdit,
+        status: editingQuote.status || 'DRAFT'
       };
+      
+      console.log('Données envoyées devis:', dataToSend);
+      
       const response = await fetch(`http://localhost:8082/api/admin/quotes/${editingQuote.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend)
       });
+      
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la modification du devis');
+        console.error('Erreur serveur:', errorData);
+        throw new Error(errorData.message || errorData.error || 'Erreur lors de la modification du devis');
       }
+      
       const updatedQuote = await response.json();
       setQuotes(quotes.map(q => q.id === updatedQuote.id ? updatedQuote : q));
       setShowEditModal(false);
       setEditingQuote(null);
       toast.success('Devis modifié avec succès !');
     } catch (error) {
-      toast.error('Erreur lors de la modification');
+      console.error('Erreur lors de la modification du devis:', error);
+      setError(error.message);
+      toast.error('Erreur lors de la modification du devis: ' + error.message);
     }
   };
 
@@ -415,6 +464,28 @@ const QuoteManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Ajouter un article dans la modale d'édition des devis
+  const addEditQuoteItem = () => {
+    setEditingQuote(prev => ({
+      ...prev,
+      items: [...prev.items, { description: '', quantity: 1, unitPrice: 0 }]
+    }));
+  };
+
+  // Supprimer un article dans la modale d'édition des devis
+  const removeEditQuoteItem = (index) => {
+    setEditingQuote(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Calculer le total dans la modale d'édition des devis
+  const calculateEditQuoteTotal = () => {
+    return editingQuote.items.reduce((total, item) => 
+      total + ((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0)), 0);
   };
 
   return (
@@ -657,124 +728,220 @@ const QuoteManagement = () => {
 
       {showEditModal && editingQuote && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content large-modal">
             <div className="modal-header">
-              <h3>Voir / Modifier le Devis</h3>
-              <button className="btn-close" onClick={() => setShowEditModal(false)}>×</button>
+              <h3>Modifier le Devis #{editingQuote.quoteNumber}</h3>
+              <button className="btn-close" onClick={() => { setShowEditModal(false); setEditingQuote(null); }}>×</button>
             </div>
-            <form onSubmit={handleEditSubmit} className="quote-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nom du client *</label>
-                  <input
-                    type="text"
-                    name="clientName"
-                    value={editingQuote.clientName}
-                    onChange={handleEditInputChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Email du client</label>
-                  <input
-                    type="email"
-                    name="clientEmail"
-                    value={editingQuote.clientEmail}
-                    onChange={handleEditInputChange}
-                  />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Téléphone du client</label>
-                  <input
-                    type="text"
-                    name="clientPhone"
-                    value={editingQuote.clientPhone}
-                    onChange={handleEditInputChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date de l'événement</label>
-                  <input
-                    type="date"
-                    name="eventDate"
-                    value={editingQuote.eventDate ? editingQuote.eventDate.split('T')[0] : ''}
-                    onChange={handleEditInputChange}
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Type d'événement</label>
-                <select
-                  name="eventType"
-                  value={editingQuote.eventType}
-                  onChange={handleEditInputChange}
-                >
-                  <option value="">Sélectionner un type</option>
-                  <option value="Mariage">Mariage</option>
-                  <option value="Anniversaire">Anniversaire</option>
-                  <option value="Baptême">Baptême</option>
-                  <option value="Conférence">Conférence</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Articles</label>
-                {editingQuote.items.map((item, index) => (
-                  <div key={index} className="item-row">
-                    <input
-                      type="text"
-                      placeholder="Description"
-                      value={item.description}
-                      onChange={(e) => handleEditItemChange(index, 'description', e.target.value)}
-                      required
+            <div className="modal-body">
+              <form onSubmit={handleEditSubmit} className="edit-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Nom du client *</label>
+                    <input 
+                      type="text" 
+                      name="clientName" 
+                      value={editingQuote.clientName || ''} 
+                      onChange={handleEditInputChange} 
+                      required 
                     />
-                    <input
-                      type="number"
-                      placeholder="Quantité"
-                      value={item.quantity}
-                      onChange={(e) => handleEditItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
-                      min="1"
-                      required
-                    />
-                    <input
-                      type="number"
-                      placeholder="Prix unitaire"
-                      value={item.unitPrice}
-                      onChange={(e) => handleEditItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                      min="0"
-                      step="0.01"
-                      className="price-input"
-                      required
-                    />
-                    <div className="item-total">
-                      {formatCurrency((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}
-                    </div>
                   </div>
-                ))}
-              </div>
-              <div className="form-group">
-                <label>
-                  Montant total: {
-                    formatCurrency(
-                      editingQuote.items.reduce(
-                        (sum, item) => sum + ((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0)),
-                        0
-                      )
-                    )
-                  }
-                </label>
-              </div>
-              <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowEditModal(false)}>
-                  Annuler
-                </button>
-                <button type="submit" className="btn-primary">
-                  Enregistrer les modifications
-                </button>
-              </div>
-            </form>
+                  <div className="form-group">
+                    <label>Email du client</label>
+                    <input 
+                      type="email" 
+                      name="clientEmail" 
+                      value={editingQuote.clientEmail || ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Téléphone</label>
+                    <input 
+                      type="text" 
+                      name="clientPhone" 
+                      value={editingQuote.clientPhone || ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Date de l'événement</label>
+                    <input 
+                      type="date" 
+                      name="eventDate" 
+                      value={editingQuote.eventDate ? 
+                        editingQuote.eventDate.includes('T') ? 
+                          editingQuote.eventDate.split('T')[0] : 
+                          editingQuote.eventDate : 
+                        ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Type d'événement</label>
+                    <select 
+                      name="eventType" 
+                      value={editingQuote.eventType || ''} 
+                      onChange={handleEditInputChange}
+                    >
+                      <option value="">Sélectionner un type</option>
+                      <option value="Mariage">Mariage</option>
+                      <option value="Anniversaire">Anniversaire</option>
+                      <option value="Baptême">Baptême</option>
+                      <option value="Conférence">Conférence</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Lieu de l'événement</label>
+                    <input 
+                      type="text" 
+                      name="eventLocation" 
+                      value={editingQuote.eventLocation || ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Date de validité</label>
+                  <input 
+                    type="date" 
+                    name="validUntil" 
+                    value={editingQuote.validUntil ? editingQuote.validUntil.split('T')[0] : ''} 
+                    onChange={handleEditInputChange} 
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Articles</label>
+                  {(editingQuote.items || []).map((item, index) => (
+                    <div key={index} className="item-row">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        value={item.description || item.productName || ''}
+                        onChange={(e) => handleEditItemChange(index, 'description', e.target.value)}
+                        required
+                      />
+                      <input
+                        type="number"
+                        placeholder="Quantité"
+                        value={item.quantity || 1}
+                        onChange={(e) => handleEditItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                        min="1"
+                        required
+                      />
+                      <input
+                        type="number"
+                        placeholder="Prix unitaire"
+                        value={item.unitPrice || 0}
+                        onChange={(e) => handleEditItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        min="0"
+                        step="0.01"
+                        className="price-input"
+                        required
+                      />
+                      <div className="item-total">
+                        {formatCurrency((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-remove"
+                        onClick={() => removeEditQuoteItem(index)}
+                        style={{
+                          display: 'inline-block',
+                          visibility: 'visible',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          padding: '8px 12px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  ))}
+                  <button type="button" className="btn-secondary" onClick={addEditQuoteItem}>
+                    Ajouter un article
+                  </button>
+                </div>
+
+                <div className="form-group">
+                  <label>Montant total:</label>
+                  <div className="total-amount">
+                    {formatCurrency(calculateEditQuoteTotal())}
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ 
+                  display: 'block', 
+                  visibility: 'visible', 
+                  marginBottom: '15px',
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  border: '2px solid #007bff',
+                  borderRadius: '8px'
+                }}>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    fontWeight: 'bold',
+                    color: '#333'
+                  }}>
+                    Statut du devis
+                  </label>
+                  <select 
+                    name="status" 
+                    value={editingQuote.status || 'DRAFT'} 
+                    onChange={handleEditInputChange}
+                    style={{ 
+                      display: 'block', 
+                      visibility: 'visible', 
+                      width: '100%',
+                      padding: '10px',
+                      border: '2px solid #007bff',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    <option value="DRAFT">📝 Brouillon</option>
+                    <option value="SENT">📤 Envoyé</option>
+                    <option value="ACCEPTED">✅ Accepté</option>
+                    <option value="REJECTED">❌ Rejeté</option>
+                    <option value="EXPIRED">⏰ Expiré</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Notes</label>
+                  <textarea 
+                    name="notes" 
+                    value={editingQuote.notes || ''} 
+                    onChange={handleEditInputChange}
+                    rows="3"
+                  />
+                </div>
+
+                <div className="form-actions">
+                  <button type="button" className="btn-secondary" onClick={() => { setShowEditModal(false); setEditingQuote(null); }}>
+                    Annuler
+                  </button>
+                  <button type="submit" className="btn-primary">Sauvegarder</button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

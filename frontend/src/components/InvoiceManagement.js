@@ -350,6 +350,28 @@ const InvoiceManagement = () => {
     }
   };
 
+  // Ajouter un article dans la modale d'édition
+  const addEditItem = () => {
+    setEditingInvoice(prev => ({
+      ...prev,
+      items: [...prev.items, { description: '', quantity: 1, unitPrice: 0 }]
+    }));
+  };
+
+  // Supprimer un article dans la modale d'édition
+  const removeEditItem = (index) => {
+    setEditingInvoice(prev => ({
+      ...prev,
+      items: prev.items.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Calculer le total dans la modale d'édition
+  const calculateEditTotal = () => {
+    return editingInvoice.items.reduce((total, item) => 
+      total + ((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0)), 0);
+  };
+
   return (
     <div className="invoice-management">
       <div className="section-header">
@@ -556,124 +578,202 @@ const InvoiceManagement = () => {
 
       {showEditModal && editingInvoice && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content large-modal">
             <div className="modal-header">
-              <h3>Voir / Modifier la Facture</h3>
-              <button className="btn-close" onClick={() => setShowEditModal(false)}>×</button>
+              <h3>Modifier la Facture #{editingInvoice.invoiceNumber}</h3>
+              <button className="btn-close" onClick={() => { setShowEditModal(false); setEditingInvoice(null); }}>×</button>
             </div>
-            <form onSubmit={handleEditSubmit} className="invoice-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nom du client *</label>
-                  <input
-                    type="text"
-                    name="clientName"
-                    value={editingInvoice.clientName}
-                    onChange={handleEditInputChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Email du client</label>
-                  <input
-                    type="email"
-                    name="clientEmail"
-                    value={editingInvoice.clientEmail}
-                    onChange={handleEditInputChange}
-                  />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Téléphone du client</label>
-                  <input
-                    type="text"
-                    name="clientPhone"
-                    value={editingInvoice.clientPhone}
-                    onChange={handleEditInputChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date de l'événement</label>
-                  <input
-                    type="date"
-                    name="eventDate"
-                    value={editingInvoice.eventDate ? editingInvoice.eventDate.split('T')[0] : ''}
-                    onChange={handleEditInputChange}
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Type d'événement</label>
-                <select
-                  name="eventType"
-                  value={editingInvoice.eventType}
-                  onChange={handleEditInputChange}
-                >
-                  <option value="">Sélectionner un type</option>
-                  <option value="Mariage">Mariage</option>
-                  <option value="Anniversaire">Anniversaire</option>
-                  <option value="Baptême">Baptême</option>
-                  <option value="Conférence">Conférence</option>
-                  <option value="Autre">Autre</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Articles</label>
-                {editingInvoice.items.map((item, index) => (
-                  <div key={index} className="item-row">
-                    <input
-                      type="text"
-                      placeholder="Description"
-                      value={item.description}
-                      onChange={(e) => handleEditItemChange(index, 'description', e.target.value)}
-                      required
+            <div className="modal-body">
+              <form onSubmit={handleEditSubmit} className="edit-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Nom du client *</label>
+                    <input 
+                      type="text" 
+                      name="clientName" 
+                      value={editingInvoice.clientName || ''} 
+                      onChange={handleEditInputChange} 
+                      required 
                     />
-                    <input
-                      type="number"
-                      placeholder="Quantité"
-                      value={item.quantity}
-                      onChange={(e) => handleEditItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
-                      min="1"
-                      required
-                    />
-                    <input
-                      type="number"
-                      placeholder="Prix unitaire"
-                      value={item.unitPrice}
-                      onChange={(e) => handleEditItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                      min="0"
-                      step="0.01"
-                      className="price-input"
-                      required
-                    />
-                    <div className="item-total">
-                      {formatCurrency((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}
-                    </div>
                   </div>
-                ))}
-              </div>
-              <div className="form-group">
-                <label>
-                  Montant total: {
-                    formatCurrency(
-                      editingInvoice.items.reduce(
-                        (sum, item) => sum + ((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0)),
-                        0
-                      )
-                    )
-                  }
-                </label>
-              </div>
-              <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowEditModal(false)}>
-                  Annuler
-                </button>
-                <button type="submit" className="btn-primary">
-                  Enregistrer les modifications
-                </button>
-              </div>
-            </form>
+                  <div className="form-group">
+                    <label>Email du client</label>
+                    <input 
+                      type="email" 
+                      name="clientEmail" 
+                      value={editingInvoice.clientEmail || ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Téléphone</label>
+                    <input 
+                      type="text" 
+                      name="clientPhone" 
+                      value={editingInvoice.clientPhone || ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Date de l'événement</label>
+                    <input 
+                      type="date" 
+                      name="eventDate" 
+                      value={editingInvoice.eventDate ? 
+                        editingInvoice.eventDate.includes('T') ? 
+                          editingInvoice.eventDate.split('T')[0] : 
+                          editingInvoice.eventDate : 
+                        ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Type d'événement</label>
+                    <select 
+                      name="eventType" 
+                      value={editingInvoice.eventType || ''} 
+                      onChange={handleEditInputChange}
+                    >
+                      <option value="">Sélectionner un type</option>
+                      <option value="Mariage">Mariage</option>
+                      <option value="Anniversaire">Anniversaire</option>
+                      <option value="Baptême">Baptême</option>
+                      <option value="Conférence">Conférence</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Lieu de l'événement</label>
+                    <input 
+                      type="text" 
+                      name="eventLocation" 
+                      value={editingInvoice.eventLocation || ''} 
+                      onChange={handleEditInputChange} 
+                    />
+                  </div>
+                </div>
+
+                {/* ✅ SECTION ARTICLES AVEC AJOUT/SUPPRESSION */}
+                <div className="form-group">
+                  <label>Articles</label>
+                  {(editingInvoice.items || []).map((item, index) => (
+                    <div key={index} className="item-row">
+                      <input
+                        type="text"
+                        placeholder="Description"
+                        value={item.description || ''}
+                        onChange={(e) => handleEditItemChange(index, 'description', e.target.value)}
+                        required
+                      />
+                      <input
+                        type="number"
+                        placeholder="Quantité"
+                        value={item.quantity || 1}
+                        onChange={(e) => handleEditItemChange(index, 'quantity', parseInt(e.target.value) || 0)}
+                        min="1"
+                        required
+                      />
+                      <input
+                        type="number"
+                        placeholder="Prix unitaire"
+                        value={item.unitPrice || 0}
+                        onChange={(e) => handleEditItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        min="0"
+                        step="0.01"
+                        className="price-input"
+                        required
+                      />
+                      <div className="item-total">
+                        {formatCurrency((parseInt(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-remove"
+                        onClick={() => removeEditItem(index)}
+                        style={{
+                          display: 'inline-block',
+                          visibility: 'visible',
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          padding: '8px 12px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        🗑️ Supprimer
+                      </button>
+                    </div>
+                  ))}
+                  <button type="button" className="btn-secondary" onClick={addEditItem}>
+                    Ajouter un article
+                  </button>
+                </div>
+
+                <div className="form-group">
+                  <label>Montant total:</label>
+                  <div className="total-amount">
+                    {formatCurrency(calculateEditTotal())}
+                  </div>
+                </div>
+
+                {/* ✅ MENU DÉROULANT DES STATUTS */}
+                <div className="form-group" style={{ 
+                  display: 'block', 
+                  visibility: 'visible', 
+                  marginBottom: '15px',
+                  padding: '10px',
+                  backgroundColor: '#f8f9fa',
+                  border: '2px solid #28a745',
+                  borderRadius: '8px'
+                }}>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    fontWeight: 'bold',
+                    color: '#333'
+                  }}>
+                    Statut de la facture
+                  </label>
+                  <select 
+                    name="status" 
+                    value={editingInvoice.status || 'DRAFT'} 
+                    onChange={handleEditInputChange}
+                    style={{ 
+                      display: 'block', 
+                      visibility: 'visible', 
+                      width: '100%',
+                      padding: '10px',
+                      border: '2px solid #28a745',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      backgroundColor: 'white'
+                    }}
+                  >
+                    <option value="DRAFT">📝 Brouillon</option>
+                    <option value="SENT">📤 Envoyée</option>
+                    <option value="PAID">💰 Payée</option>
+                    <option value="OVERDUE">⏰ En retard</option>
+                    <option value="CANCELLED">❌ Annulée</option>
+                  </select>
+                </div>
+
+                <div className="form-actions">
+                  <button type="button" className="btn-secondary" onClick={() => { setShowEditModal(false); setEditingInvoice(null); }}>
+                    Annuler
+                  </button>
+                  <button type="submit" className="btn-primary">Sauvegarder</button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
