@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nouvelle demande de devis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #FF6B6B, #EE5A24);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+        }
+        .info-row {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #FF6B6B;
+        }
+        .label {
+            font-weight: bold;
+            color: #EE5A24;
+        }
+        .message-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+        }
+        .priority {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Nouvelle demande de devis</h1>
+        <p>Nadia Event's Decor</p>
+        <p>Décoration d'événements professionnelle</p>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour,</p>
+        
+        <p>Une nouvelle demande de devis a été reçue le <span th:text="${timestamp}">date</span>.</p>
+        
+        <div class="info-row">
+            <span class="label">Client :</span>
+            <span th:text="${request.name}">Nom du client</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Email :</span>
+            <span th:text="${request.email}">email@example.com</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.phone}">
+            <span class="label">Téléphone :</span>
+            <span th:text="${request.phone}">Téléphone</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Type d'événement :</span>
+            <span th:text="${request.eventType}">Type d'événement</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.eventDate}">
+            <span class="label">Date de l'événement :</span>
+            <span th:text="${request.eventDate}">Date</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.eventLocation}">
+            <span class="label">Lieu de l'événement :</span>
+            <span th:text="${request.eventLocation}">Lieu</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.guestCount}">
+            <span class="label">Nombre d'invités :</span>
+            <span th:text="${request.guestCount}">Nombre</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.budget}">
+            <span class="label">Budget :</span>
+            <span th:text="${request.budget}">Budget</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.urgency}">
+            <span class="label">Urgence :</span>
+            <span th:text="${request.urgency}">Urgence</span>
+        </div>
+        
+        <div class="message-box">
+            <span class="label">Message du client :</span>
+            <p th:text="${request.message}">Contenu du message</p>
+        </div>
+        
+        <div class="message-box" th:if="${request.additionalRequirements}">
+            <span class="label">Exigences supplémentaires :</span>
+            <p th:text="${request.additionalRequirements}">Exigences</p>
+        </div>
+        
+        <div class="priority">
+            <strong>⚠️ Action prioritaire :</strong> Cette demande de devis nécessite une réponse rapide (délai recommandé : 24h).
+        </div>
+        
+        <p><strong>Prochaines étapes :</strong></p>
+        <ol>
+            <li>Analyser les besoins du client</li>
+            <li>Préparer un devis détaillé</li>
+            <li>Contacter le client pour discuter des options</li>
+            <li>Envoyer le devis par email</li>
+        </ol>
+        
+        <p>Cordialement,<br>
+        Système de notification - Nadia Event's Decor</p>
+    </div>
+    
+    <div class="footer">
+        <p>Ce message a été envoyé automatiquement par le système de devis de Nadia Event's Decor.</p>
+        <p>© 2024 Nadia Event's Decor - Tous droits réservés</p>
+        <p>Contact : nadiaeventsdecor@gmail.com</p>
+    </div>
+</body>
+</html> 

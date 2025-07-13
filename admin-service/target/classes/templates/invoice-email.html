@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre facture - Nadia Event's Decor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .invoice-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .total {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .payment-info {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+        }
+        .urgent {
+            background: #ff5722;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Nadia Event's Decor</h1>
+        <p>Votre facture</p>
+    </div>
+    
+    <div class="content">
+        <h2>Bonjour <span th:text="${clientName}">Client</span>,</h2>
+        
+        <p>Veuillez trouver ci-joint votre facture pour les services de décoration d'événement.</p>
+        
+        <div class="invoice-details">
+            <h3>Détails de la facture</h3>
+            <p><strong>Numéro de facture :</strong> <span th:text="${invoiceNumber}">INV-20250101-001</span></p>
+            <p><strong>Date de facturation :</strong> <span th:text="${#temporals.format(invoice.createdAt, 'dd/MM/yyyy')}">01/01/2025</span></p>
+            <p><strong>Date d'échéance :</strong> <span th:text="${#temporals.format(dueDate, 'dd/MM/yyyy')}">31/01/2025</span></p>
+            
+            <div th:if="${invoice.items != null and !invoice.items.isEmpty()}">
+                <h4>Services facturés :</h4>
+                <ul>
+                    <li th:each="item : ${invoice.items}">
+                        <span th:text="${item.description}">Service</span> - 
+                        <span th:text="${item.quantity}">1</span> x 
+                        <span th:text="${#numbers.formatDecimal(item.unitPrice, 0, 2)}">0.00</span> €
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="total">
+            Montant total : <span th:text="${#numbers.formatDecimal(totalAmount, 0, 2)}">0.00</span> €
+        </div>
+        
+        <div class="payment-info">
+            <h4>Informations de paiement</h4>
+            <p><strong>Méthode de paiement :</strong> <span th:text="${invoice.paymentMethod}">Virement bancaire</span></p>
+            <p><strong>Date d'échéance :</strong> <span th:text="${#temporals.format(dueDate, 'dd/MM/yyyy')}">31/01/2025</span></p>
+            
+            <div th:if="${invoice.paymentMethod == 'Virement bancaire'}">
+                <p><strong>Coordonnées bancaires :</strong></p>
+                <ul>
+                    <li>Banque : [Nom de la banque]</li>
+                    <li>IBAN : [Numéro IBAN]</li>
+                    <li>BIC/SWIFT : [Code BIC]</li>
+                    <li>Bénéficiaire : Nadia Event's Decor</li>
+                    <li>Référence : <span th:text="${invoiceNumber}">INV-20250101-001</span></li>
+                </ul>
+            </div>
+        </div>
+        
+        <p>Merci de procéder au règlement dans les délais impartis.</p>
+        
+        <p>Pour toute question concernant cette facture, n'hésitez pas à nous contacter :</p>
+        <ul>
+            <li>📧 Email : nadiaeventsdecor@gmail.com</li>
+            <li>📞 Téléphone : +237 680 207 496</li>
+            <li>📍 Adresse : Yaoundé, Cameroun</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="mailto:nadiaeventsdecor@gmail.com?subject=Paiement facture" class="btn">Confirmer le paiement</a>
+            <a href="mailto:nadiaeventsdecor@gmail.com?subject=Question facture" class="btn">Question sur la facture</a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Nadia Event's Decor</strong></p>
+        <p>Décoration d'événements professionnelle</p>
+        <p>Yaoundé, Cameroun | +237 680 207 496</p>
+        <p>© 2025 Nadia Event's Decor. Tous droits réservés.</p>
+    </div>
+</body>
+</html> 

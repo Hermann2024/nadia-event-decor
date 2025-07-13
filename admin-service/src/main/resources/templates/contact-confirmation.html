@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation de votre message</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #32CD32, #228B22);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+        }
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+        }
+        .contact-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background: #32CD32;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Message reçu avec succès !</h1>
+        <p>Nadia Event's Decor</p>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour <strong th:text="${request.name}">Client</strong>,</p>
+        
+        <div class="success-box">
+            <h3>✅ Votre message a été envoyé avec succès !</h3>
+            <p>Nous avons bien reçu votre message et nous vous répondrons dans les plus brefs délais.</p>
+        </div>
+        
+        <div class="info-box">
+            <h4>Récapitulatif de votre message :</h4>
+            <p><strong>Sujet :</strong> <span th:text="${request.subject}">Sujet</span></p>
+            <p><strong>Date d'envoi :</strong> <span th:text="${timestamp}">date</span></p>
+        </div>
+        
+        <div class="contact-info">
+            <h4>📞 Nos coordonnées :</h4>
+            <p><strong>Téléphone :</strong> +237 680 207 496</p>
+            <p><strong>Téléphone :</strong> +237 657 759 510</p>
+            <p><strong>Téléphone :</strong> +237 699 275 786</p>
+            <p><strong>Email :</strong> nadiaeventsdecor@gmail.com</p>
+            <p><strong>Adresse :</strong> Yaoundé, Cameroun</p>
+        </div>
+        
+        <p><strong>Que se passe-t-il maintenant ?</strong></p>
+        <ul>
+            <li>Notre équipe va analyser votre demande</li>
+            <li>Nous vous contacterons dans les 24h</li>
+            <li>Nous vous proposerons des solutions adaptées</li>
+        </ul>
+        
+        <p>En attendant notre réponse, vous pouvez :</p>
+        <a href="http://localhost:3000/products" class="btn">Découvrir nos produits</a>
+        <a href="http://localhost:3000/about" class="btn">En savoir plus sur nous</a>
+        
+        <p>Cordialement,<br>
+        <strong>L'équipe Nadia Event's Decor</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>Ce message a été envoyé automatiquement en confirmation de votre demande.</p>
+        <p>© 2024 Nadia Event's Decor - Tous droits réservés</p>
+    </div>
+</body>
+</html> 

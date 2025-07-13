@@ -1,0 +1,127 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: Nadia Event's Decor
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nadia_events
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
+  jackson:
+    date-format: yyyy-MM-dd
+    time-format: HH:mm:ss
+    date-time: yyyy-MM-dd'T'HH:mm:ss
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nadiaeventsdecor@gmail.com
+    password: Nadia2025
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: false
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+nadia:
+  events:
+    contact:
+      email: nadiaeventsdecor@gmail.com
+    admin:
+      email: nadiaeventsdecor@gmail.com
+    company:
+      name: Nadia Events Decor
+      phone: "+237 680 207 496"
+      address: "Yaoundé, Cameroun"
+
+security:
+  basic:
+    enabled: false
+  user:
+    name: admin
+    password: admin123
+
+app:
+  email:
+    enabled: ${EMAIL_ENABLED:true}
+    from: ${EMAIL_FROM:nadiaeventsdecor@gmail.com}
+    admin: ${ADMIN_EMAIL:nadiaeventsdecor@gmail.com}
+    templates:
+      quote: quote-email
+      invoice: invoice-email
+      confirmation: confirmation-email
+
+notifications:
+  websocket:
+    enabled: true
+    endpoint: /ws
+  retention:
+    days: 30
+
+quotes:
+  validity:
+    days: 30
+  numbering:
+    prefix: "QUO"
+    format: "yyyyMMdd"
+
+invoices:
+  numbering:
+    prefix: "INV"
+    format: "yyyyMMdd"
+  payment:
+    reminder:
+      days-before: 7
+      days-after: 3
+
+logging:
+  level:
+    com.nadiaevents.admin: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.messaging: DEBUG

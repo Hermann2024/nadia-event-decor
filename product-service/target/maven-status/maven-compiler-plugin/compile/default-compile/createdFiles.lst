@@ -1,0 +1,6 @@
+com/nadiaevents/product/model/Product.class
+com/nadiaevents/product/service/ProductService.class
+com/nadiaevents/product/ProductApplication.class
+com/nadiaevents/product/controller/ProductController.class
+com/nadiaevents/product/repository/ProductRepository.class
+com/nadiaevents/product/config/CorsConfig.class

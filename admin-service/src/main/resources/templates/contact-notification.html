@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nouveau message de contact</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #32CD32, #228B22);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+        }
+        .info-row {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #32CD32;
+        }
+        .label {
+            font-weight: bold;
+            color: #228B22;
+        }
+        .message-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Nouveau message de contact</h1>
+        <p>Nadia Event's Decor</p>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour,</p>
+        
+        <p>Un nouveau message de contact a été reçu le <span th:text="${timestamp}">date</span>.</p>
+        
+        <div class="info-row">
+            <span class="label">Nom :</span>
+            <span th:text="${request.name}">Nom</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Email :</span>
+            <span th:text="${request.email}">email@example.com</span>
+        </div>
+        
+        <div class="info-row" th:if="${request.phone}">
+            <span class="label">Téléphone :</span>
+            <span th:text="${request.phone}">Téléphone</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Sujet :</span>
+            <span th:text="${request.subject}">Sujet</span>
+        </div>
+        
+        <div class="message-box">
+            <span class="label">Message :</span>
+            <p th:text="${request.message}">Contenu du message</p>
+        </div>
+        
+        <p><strong>Action requise :</strong> Veuillez répondre à ce client dans les plus brefs délais.</p>
+        
+        <p>Cordialement,<br>
+        Système de notification - Nadia Event's Decor</p>
+    </div>
+    
+    <div class="footer">
+        <p>Ce message a été envoyé automatiquement par le système de contact de Nadia Event's Decor.</p>
+        <p>© 2024 Nadia Event's Decor - Tous droits réservés</p>
+        <p>Contact : nadiaeventsdeco@gmail.com</p>
+    </div>
+</body>
+</html> 

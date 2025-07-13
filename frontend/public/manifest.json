@@ -1,0 +1,8 @@
+{
+  "name": "Nadia Events Decor",
+  "short_name": "NadiaEvents",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "Décoration d'événements"
+} 

@@ -1,0 +1,608 @@
+{
+    "checksum": "d325e9a0df07c4f3c4d52e51efb0ba7d6a6b034b39218f4da399100a26379ebe",
+    "data": {
+    "id": "1534f792-3b2a-41af-8f72-d828940b948a",
+    "createdAt": 1752141910188,
+    "updatedAt": 1752142103908,
+    "title": "Java Code Error Resolution",
+    "messages": [
+        {
+            "id": "63b30f1d-b86a-442f-8e72-4e7003900907",
+            "role": "user",
+            "content": [
+                {
+                    "type": "command",
+                    "commandName": "fix"
+                },
+                {
+                    "type": "codeSnippet",
+                    "text": "chatSessionRepository.findBySessionId(sessionId)",
+                    "language": "java"
+                },
+                {
+                    "type": "text",
+                    "text": "Cannot resolve method 'findBySessionId(String)'"
+                }
+            ],
+            "context": {
+                "currentFile": {
+                    "path": "/Users/hermann.nana/kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                    "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                    "content": "package com.nadiaevents.admin.service;\n\nimport com.nadiaevents.admin.model.ChatMessage;\nimport com.nadiaevents.admin.model.ChatSession;\nimport com.nadiaevents.admin.model.Notification;\nimport com.nadiaevents.admin.model.Staff;\nimport com.nadiaevents.admin.repository.ChatMessageRepository;\nimport com.nadiaevents.admin.repository.ChatSessionRepository;\nimport com.nadiaevents.admin.repository.StaffRepository;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.messaging.simp.SimpMessagingTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\nimport java.time.LocalDateTime;\nimport java.util.List;\nimport java.util.Optional;\nimport java.util.UUID;\n\n@Service\n@Transactional\npublic class ChatService {\n    \n    @Autowired\n    private ChatSessionRepository chatSessionRepository;\n    \n    @Autowired\n    private ChatMessageRepository chatMessageRepository;\n    \n    @Autowired\n    private StaffRepository staffRepository;\n    \n    @Autowired\n    private NotificationService notificationService;\n    \n    @Autowired\n    private SimpMessagingTemplate messagingTemplate;\n    \n    /**\n     * Créer une nouvelle session de chat\n     */\n    public ChatSession createSession(String visitorName, String visitorEmail, String visitorPhone) {\n        ChatSession session = new ChatSession();\n        session.setSessionId(UUID.randomUUID().toString());\n        session.setVisitorName(visitorName);\n        session.setVisitorEmail(visitorEmail);\n        session.setVisitorPhone(visitorPhone);\n        session.setStatus(ChatSession.SessionStatus.ACTIVE);\n        \n        ChatSession savedSession = chatSessionRepository.save(session);\n        \n        // Notifier l'équipe d'une nouvelle session\n        notifyNewChatSession(savedSession);\n        \n        return savedSession;\n    }\n    \n    /**\n     * Envoyer un message depuis le visiteur\n     */\n    public ChatMessage sendVisitorMessage(String sessionId, String message, String senderName, String senderEmail, String senderPhone) {\n        Optional<ChatSession> sessionOpt = chatSessionRepository.findBySessionId(sessionId);\n        if (sessionOpt.isEmpty()) {\n            throw new RuntimeException(\"Session de chat non trouvée\");\n        }\n        \n        ChatSession session = sessionOpt.get();\n        \n        // Créer le message\n        ChatMessage chatMessage = new ChatMessage();\n        chatMessage.setSessionId(sessionId);\n        chatMessage.setMessage(message);\n        chatMessage.setSenderName(senderName);\n        chatMessage.setSenderEmail(senderEmail);\n        chatMessage.setSenderPhone(senderPhone);\n        chatMessage.setType(ChatMessage.MessageType.TEXT);\n        chatMessage.setIsFromVisitor(true);\n        \n        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);\n        \n        // Mettre à jour la session\n        session.setLastActivity(LocalDateTime.now());\n        session.setTotalMessages(session.getTotalMessages() + 1);\n        session.setUnreadMessages(session.getUnreadMessages() + 1);\n        chatSessionRepository.save(session);\n        \n        // Notifier le staff assigné si il y en a un\n        if (session.getAssignedStaff() != null) {\n            notifyStaffOfNewMessage(session, savedMessage);\n        } else {\n            // Assigner automatiquement à un staff disponible\n            assignSessionToAvailableStaff(session);\n        }\n        \n        // Envoyer via WebSocket\n        messagingTemplate.convertAndSend(\"/topic/chat/\" + sessionId, savedMessage);\n        \n        return savedMessage;\n    }\n    \n    /**\n     * Envoyer un message depuis le staff\n     */\n    public ChatMessage sendStaffMessage(String sessionId, String message, Long staffId) {\n        Optional<ChatSession> sessionOpt = chatSessionRepository.findBySessionId(sessionId);\n        if (sessionOpt.isEmpty()) {\n            throw new RuntimeException(\"Session de chat non trouvée\");\n        }\n        \n        ChatSession session = sessionOpt.get();\n        Optional<Staff> staffOpt = staffRepository.findById(staffId);\n ",
+                    "language": "java"
+                },
+                "codebaseEnabled": true
+            },
+            "createdAt": 1752141910194,
+            "isInternal": false,
+            "rawContent": {
+                "type": "doc",
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "command",
+                                "attrs": {
+                                    "label": "fix"
+                                },
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": "/fix"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "codeBlock",
+                                "attrs": {
+                                    "language": "java"
+                                },
+                                "content": [
+                                    {
+                                        "type": "text",
+                                        "text": "chatSessionRepository.findBySessionId(sessionId)"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "text",
+                                "text": "Cannot resolve method 'findBySessionId(String)'"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": "421c8168-c7a0-4000-8a37-dd7165d9b9da",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "I can see the issue in the ChatService.java file. The error indicates that the `findBySessionId(String)` method doesn't exist in the `ChatSessionRepository`. Let me first examine the repository to understand its current structure and then fix the issue."
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01Mdgt97sF4ix3AexhTV6ntw",
+                    "title": "File search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Let me search more broadly for repository files:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01AeMD8wtKfaKBTyRM4D6KjK",
+                    "title": "File search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "I notice that `ChatSessionRepository` is not in the search results, but `ChatMessageRepository` is there. Let me search specifically for ChatSession:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01FFNDpEcKjbdQ51KCfd5yYr",
+                    "title": "File search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Let me search for any files containing \"Chat\":"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01C2d1LhkDDGSQkguzHj628r",
+                    "title": "Fulltext search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Now let me check if the ChatSession model and ChatSessionRepository exist by looking at the model directory:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01YPuAHEqv1qjBg1ybsqgu7v",
+                    "title": "File search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "I can see that `ChatMessage.java` exists but I don't see `ChatSession.java` in the model directory. Let me check the ChatMessage model to understand the structure:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_018iqG2JQMe9uRzotKGvjzKx",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatMessage.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatMessage.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Now let me check the ChatMessageRepository to understand the pattern:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01HG5ywfnKYft8Hn5G15Uvs2",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatMessageRepository.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatMessageRepository.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Now I understand the issue. The `ChatSession` model and `ChatSessionRepository` are missing, but they are being referenced in the `ChatService`. I need to create both the model and repository. Let me first create the `ChatSession` model:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_011y9oRZoqWGaGC8ffni9rbd",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatSession.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatSession.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatSession.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatSession.java\n@@ -0,0 +1,166 @@\n+package com.nadiaevents.admin.model;\n+\n+import javax.persistence.*;\n+import java.time.LocalDateTime;\n+\n+@Entity\n+@Table(name = \"chat_sessions\")\n+public class ChatSession {\n+    \n+    @Id\n+    @GeneratedValue(strategy = GenerationType.IDENTITY)\n+    private Long id;\n+    \n+    @Column(name = \"session_id\", unique = true, nullable = false)\n+    private String sessionId;\n+    \n+    @Column(name = \"visitor_name\", nullable = false)\n+    private String visitorName;\n+    \n+    @Column(name = \"visitor_email\")\n+    private String visitorEmail;\n+    \n+    @Column(name = \"visitor_phone\")\n+    private String visitorPhone;\n+    \n+    @Enumerated(EnumType.STRING)\n+    @Column(name = \"status\", nullable = false)\n+    private SessionStatus status;\n+    \n+    @ManyToOne(fetch = FetchType.LAZY)\n+    @JoinColumn(name = \"assigned_staff_id\")\n+    private Staff assignedStaff;\n+    \n+    @Column(name = \"created_at\")\n+    private LocalDateTime createdAt;\n+    \n+    @Column(name = \"last_activity\")\n+    private LocalDateTime lastActivity;\n+    \n+    @Column(name = \"total_messages\")\n+    private Integer totalMessages;\n+    \n+    @Column(name = \"unread_messages\")\n+    private Integer unreadMessages;\n+    \n+    @Column(name = \"closed_at\")\n+    private LocalDateTime closedAt;\n+    \n+    public enum SessionStatus {\n+        ACTIVE, ASSIGNED, CLOSED, ARCHIVED\n+    }\n+    \n+    // Constructors\n+    public ChatSession() {\n+        this.createdAt = LocalDateTime.now();\n+        this.lastActivity = LocalDateTime.now();\n+        this.status = SessionStatus.ACTIVE;\n+        this.totalMessages = 0;\n+        this.unreadMessages = 0;\n+    }\n+    \n+    // Getters and Setters\n+    public Long getId() {\n+        return id;\n+    }\n+    \n+    public void setId(Long id) {\n+        this.id = id;\n+    }\n+    \n+    public String getSessionId() {\n+        return sessionId;\n+    }\n+    \n+    public void setSessionId(String sessionId) {\n+        this.sessionId = sessionId;\n+    }\n+    \n+    public String getVisitorName() {\n+        return visitorName;\n+    }\n+    \n+    public void setVisitorName(String visitorName) {\n+        this.visitorName = visitorName;\n+    }\n+    \n+    public String getVisitorEmail() {\n+        return visitorEmail;\n+    }\n+    \n+    public void setVisitorEmail(String visitorEmail) {\n+        this.visitorEmail = visitorEmail;\n+    }\n+    \n+    public String getVisitorPhone() {\n+        return visitorPhone;\n+    }\n+    \n+    public void setVisitorPhone(String visitorPhone) {\n+        this.visitorPhone = visitorPhone;\n+    }\n+    \n+    public SessionStatus getStatus() {\n+        return status;\n+    }\n+    \n+    public void setStatus(SessionStatus status) {\n+        this.status = status;\n+    }\n+    \n+    public Staff getAssignedStaff() {\n+        return assignedStaff;\n+    }\n+    \n+    public void setAssignedStaff(Staff assignedStaff) {\n+        this.assignedStaff = assignedStaff;\n+    }\n+    \n+    public LocalDateTime getCreatedAt() {\n+        return createdAt;\n+    }\n+    \n+    public void setCreatedAt(LocalDateTime createdAt) {\n+        this.createdAt = createdAt;\n+    }\n+    \n+    public LocalDateTime getLastActivity() {\n+        return lastActivity;\n+    }\n+    \n+    public void setLastActivity(LocalDateTime lastActivity) {\n+        this.lastActivity = lastActivity;\n+    }\n+    \n+    public Integer getTotalMessages() {\n+        return totalMessages;\n+    }\n+    \n+    public void setTotalMessages(Integer totalMessages) {\n+        this.totalMessages = totalMessages;\n+    }\n+    \n+    public Integer getUnreadMessages() {\n+        return unreadMessages;\n+    }\n+    \n+    public void setUnreadMessages(Integer unreadMessages) {\n+        this.unreadMessages = unreadMessages;\n+    }\n+    \n+    public LocalDateTime getClosedAt() {\n+        return closedAt;\n+    }\n+    \n+    public void setClosedAt(LocalDateTime closedAt) {\n+        this.closedAt = closedAt;\n+    }\n+    \n+    @PreUpdate\n+    public void preUpdate() {\n+        this.lastActivity = LocalDateTime.now();\n+        if (this.status == SessionStatus.CLOSED && this.closedAt == null) {\n+            this.closedAt = LocalDateTime.now();\n+        }\n+    }\n+}",
+                    "refToolCallId": "toolu_011y9oRZoqWGaGC8ffni9rbd"
+                },
+                {
+                    "type": "text",
+                    "text": "Now let me create the `ChatSessionRepository`:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01L3sBH1C6XghdaeqDYup93B",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatSessionRepository.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatSessionRepository.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatSessionRepository.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatSessionRepository.java\n@@ -0,0 +1,35 @@\n+package com.nadiaevents.admin.repository;\n+\n+import com.nadiaevents.admin.model.ChatSession;\n+import org.springframework.data.jpa.repository.JpaRepository;\n+import org.springframework.data.jpa.repository.Query;\n+import org.springframework.data.repository.query.Param;\n+import org.springframework.stereotype.Repository;\n+\n+import java.time.LocalDateTime;\n+import java.util.List;\n+import java.util.Optional;\n+\n+@Repository\n+public interface ChatSessionRepository extends JpaRepository<ChatSession, Long> {\n+    \n+    Optional<ChatSession> findBySessionId(String sessionId);\n+    \n+    List<ChatSession> findByStatusOrderByLastActivityDesc(ChatSession.SessionStatus status);\n+    \n+    List<ChatSession> findByAssignedStaffIdOrderByLastActivityDesc(Long staffId);\n+    \n+    @Query(\"SELECT s FROM ChatSession s WHERE s.assignedStaff IS NULL AND s.status = 'ACTIVE' ORDER BY s.createdAt ASC\")\n+    List<ChatSession> findUnassignedActiveSessions();\n+    \n+    @Query(\"SELECT COUNT(s) FROM ChatSession s WHERE s.assignedStaff.id = :staffId AND s.status = 'ACTIVE'\")\n+    Long countActiveSessionsForStaff(@Param(\"staffId\") Long staffId);\n+    \n+    @Query(\"SELECT s FROM ChatSession s WHERE s.lastActivity < :cutoffTime AND s.status = 'ACTIVE'\")\n+    List<ChatSession> findInactiveSessions(@Param(\"cutoffTime\") LocalDateTime cutoffTime);\n+    \n+    @Query(\"SELECT COUNT(s) FROM ChatSession s WHERE s.status = 'ACTIVE' AND s.unreadMessages > 0\")\n+    Long countSessionsWithUnreadMessages();\n+    \n+    List<ChatSession> findByVisitorEmailOrderByCreatedAtDesc(String visitorEmail);\n+}",
+                    "refToolCallId": "toolu_01L3sBH1C6XghdaeqDYup93B"
+                },
+                {
+                    "type": "text",
+                    "text": "Now let me check the current ChatService to see if there are any other missing methods that need to be implemented. Let me view the complete file:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_016wRPhL2QP3gEPoA186cSo6",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Let me see the rest of the file:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_0193i4NXdrLhELYJruGAMTbz",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "It seems the file is incomplete. Let me check if there are any other methods that need to be implemented by searching for method calls in the service:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_019bRfN1Pw8S1YuwYDhHHpgC",
+                    "title": "Fulltext search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01F1B2qHhqLFKw8Ehtc2sTQM",
+                    "title": "Fulltext search",
+                    "statusText": "Done",
+                    "status": "SUCCESS",
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "I can see that the ChatService is incomplete and has missing method implementations. Let me complete the ChatService by adding the missing methods and completing the existing ones:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01Gr1jRAVWHkPsSrPr6TdZ68",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java\n@@ -109,4 +109,163 @@\n         \n         ChatSession session = sessionOpt.get();\n         Optional<Staff> staffOpt = staffRepository.findById(staffId);\n- \n+        if (staffOpt.isEmpty()) {\n+            throw new RuntimeException(\"Staff non trouvé\");\n+        }\n+        \n+        Staff staff = staffOpt.get();\n+        \n+        // Créer le message\n+        ChatMessage chatMessage = new ChatMessage();\n+        chatMessage.setSessionId(sessionId);\n+        chatMessage.setMessage(message);\n+        chatMessage.setSenderName(staff.getFirstName() + \" \" + staff.getLastName());\n+        chatMessage.setSenderEmail(staff.getEmail());\n+        chatMessage.setType(ChatMessage.MessageType.TEXT);\n+        chatMessage.setIsFromVisitor(false);\n+        chatMessage.setAssignedStaff(staff);\n+        \n+        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);\n+        \n+        // Mettre à jour la session\n+        session.setLastActivity(LocalDateTime.now());\n+        session.setTotalMessages(session.getTotalMessages() + 1);\n+        session.setAssignedStaff(staff);\n+        session.setStatus(ChatSession.SessionStatus.ASSIGNED);\n+        chatSessionRepository.save(session);\n+        \n+        // Envoyer via WebSocket\n+        messagingTemplate.convertAndSend(\"/topic/chat/\" + sessionId, savedMessage);\n+        \n+        return savedMessage;\n+    }\n+    \n+    /**\n+     * Assigner une session à un staff disponible\n+     */\n+    private void assignSessionToAvailableStaff(ChatSession session) {\n+        // Trouver un staff disponible (logique simple - peut être améliorée)\n+        List<Staff> availableStaff = staffRepository.findByIsActiveTrue();\n+        if (!availableStaff.isEmpty()) {\n+            Staff assignedStaff = availableStaff.get(0); // Assigner au premier disponible\n+            session.setAssignedStaff(assignedStaff);\n+            session.setStatus(ChatSession.SessionStatus.ASSIGNED);\n+            chatSessionRepository.save(session);\n+            \n+            // Notifier le staff assigné\n+            notifyStaffAssignment(session, assignedStaff);\n+        }\n+    }\n+    \n+    /**\n+     * Notifier l'équipe d'une nouvelle session de chat\n+     */\n+    private void notifyNewChatSession(ChatSession session) {\n+        Notification notification = new Notification();\n+        notification.setTitle(\"Nouvelle session de chat\");\n+        notification.setMessage(\"Nouvelle session de chat de \" + session.getVisitorName());\n+        notification.setType(Notification.NotificationType.CHAT_NEW_SESSION);\n+        notification.setRelatedEntityId(session.getId());\n+        notification.setCreatedAt(LocalDateTime.now());\n+        \n+        notificationService.createNotification(notification);\n+        \n+        // Envoyer via WebSocket à tous les staff\n+        messagingTemplate.convertAndSend(\"/topic/notifications/staff\", notification);\n+    }\n+    \n+    /**\n+     * Notifier le staff d'un nouveau message\n+     */\n+    private void notifyStaffOfNewMessage(ChatSession session, ChatMessage message) {\n+        if (session.getAssignedStaff() != null) {\n+            Notification notification = new Notification();\n+            notification.setTitle(\"Nouveau message de chat\");\n+            notification.setMessage(\"Nouveau message de \" + session.getVisitorName());\n+            notification.setType(Notification.NotificationType.CHAT_NEW_MESSAGE);\n+            notification.setRelatedEntityId(session.getId());\n+            notification.setTargetStaffId(session.getAssignedStaff().getId());\n+            notification.setCreatedAt(LocalDateTime.now());\n+            \n+            notificationService.createNotification(notification);\n+            \n+            // Envoyer via WebSocket au staff assigné\n+            messagingTemplate.convertAndSend(\"/topic/notifications/staff/\" + session.getAssignedStaff().getId(), notification);\n+        }\n+    }\n+    \n+    /**\n+     * Notifier le staff de son assignation à une session\n+     */\n+    private void notifyStaffAssignment(ChatSession session, Staff staff) {\n+        Notification notification = new Notification();\n+        notification.setTitle(\"Session de chat assignée\");\n+        notification.setMessage(\"Vous avez été assigné à la session de \" + session.getVisitorName());\n+        notification.setType(Notification.NotificationType.CHAT_ASSIGNMENT);\n+        notification.setRelatedEntityId(session.getId());\n+        notification.setTargetStaffId(staff.getId());\n+        notification.setCreatedAt(LocalDateTime.now());\n+        \n+        notificationService.createNotification(notification);\n+        \n+        // Envoyer via WebSocket au staff assigné\n+        messagingTemplate.convertAndSend(\"/topic/notifications/staff/\" + staff.getId(), notification);\n+    }\n+    \n+    /**\n+     * Obtenir toutes les sessions actives\n+     */\n+    public List<ChatSession> getActiveSessions() {\n+        return chatSessionRepository.findByStatusOrderByLastActivityDesc(ChatSession.SessionStatus.ACTIVE);\n+    }\n+    \n+    /**\n+     * Obtenir les sessions assignées à un staff\n+     */\n+    public List<ChatSession> getSessionsForStaff(Long staffId) {\n+        return chatSessionRepository.findByAssignedStaffIdOrderByLastActivityDesc(staffId);\n+    }\n+    \n+    /**\n+     * Obtenir les messages d'une session\n+     */\n+    public List<ChatMessage> getSessionMessages(String sessionId) {\n+        return chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);\n+    }\n+    \n+    /**\n+     * Marquer les messages comme lus\n+     */\n+    public void markMessagesAsRead(String sessionId, Long staffId) {\n+        List<ChatMessage> messages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);\n+        for (ChatMessage message : messages) {\n+            if (message.getIsFromVisitor() && message.getStatus() == ChatMessage.MessageStatus.SENT) {\n+                message.setStatus(ChatMessage.MessageStatus.READ);\n+                chatMessageRepository.save(message);\n+            }\n+        }\n+        \n+        // Mettre à jour le compteur de messages non lus de la session\n+        Optional<ChatSession> sessionOpt = chatSessionRepository.findBySessionId(sessionId);\n+        if (sessionOpt.isPresent()) {\n+            ChatSession session = sessionOpt.get();\n+            session.setUnreadMessages(0);\n+            chatSessionRepository.save(session);\n+        }\n+    }\n+    \n+    /**\n+     * Fermer une session de chat\n+     */\n+    public void closeSession(String sessionId, Long staffId) {\n+        Optional<ChatSession> sessionOpt = chatSessionRepository.findBySessionId(sessionId);\n+        if (sessionOpt.isPresent()) {\n+            ChatSession session = sessionOpt.get();\n+            session.setStatus(ChatSession.SessionStatus.CLOSED);\n+            session.setClosedAt(LocalDateTime.now());\n+            chatSessionRepository.save(session);\n+            \n+            // Notifier via WebSocket\n+            messagingTemplate.convertAndSend(\"/topic/chat/\" + sessionId + \"/status\", \"CLOSED\");\n+        }\n+    }",
+                    "refToolCallId": "toolu_01Gr1jRAVWHkPsSrPr6TdZ68"
+                },
+                {
+                    "type": "text",
+                    "text": "Now I need to check if there are any missing methods in the StaffRepository that are being used. Let me check the StaffRepository:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01WcErzRx3zdfE1Tm4gggfye",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "I can see that the `findByIsActiveTrue()` method is missing from the StaffRepository. Let me add it:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_015aN2tGuiJqYNh7Epz9k8ot",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java\n@@ -18,6 +18,8 @@\n     List<Staff> findByDepartment(String department);\n     \n     List<Staff> findByStatus(Staff.StaffStatus status);\n+    \n+    List<Staff> findByIsActiveTrue();\n     \n     @Query(\"SELECT COUNT(s) FROM Staff s WHERE s.status = 'ACTIVE'\")\n     Long countActiveStaff();",
+                    "refToolCallId": "toolu_015aN2tGuiJqYNh7Epz9k8ot"
+                },
+                {
+                    "type": "text",
+                    "text": "Now let me check if the Notification model has the required NotificationType enum values. Let me examine the Notification model:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_017pSTfEuMQUUAyyHnJUe4SP",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "I need to add the chat-related notification types to the NotificationType enum. Let me update it:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01Kgo6CAYWicwiK2F62VxckJ",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java\n@@ -46,6 +46,7 @@\n         QUOTE_REQUEST_NEW, QUOTE_REQUEST_ASSIGNED, QUOTE_REQUEST_UPDATED,\n         QUOTE_CREATED, QUOTE_SENT, QUOTE_ACCEPTED, QUOTE_REJECTED,\n         INVOICE_CREATED, INVOICE_SENT, INVOICE_PAID, INVOICE_OVERDUE,\n+        CHAT_NEW_SESSION, CHAT_NEW_MESSAGE, CHAT_ASSIGNMENT,\n         SYSTEM_ALERT, REMINDER\n     }\n     ",
+                    "refToolCallId": "toolu_01Kgo6CAYWicwiK2F62VxckJ"
+                },
+                {
+                    "type": "text",
+                    "text": "I also notice that the ChatService is using `setTargetStaffId()` method on the Notification, but I see the Notification model has a `recipient` field instead. Let me check if there's a `targetStaffId` field or if I need to add it. Let me also add the missing field and getter/setter:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01YNWdxPHS9zKCH164BfCcQ5",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java\n@@ -26,6 +26,9 @@\n     @ManyToOne(fetch = FetchType.LAZY)\n     @JoinColumn(name = \"recipient_id\")\n     private Staff recipient;\n+    \n+    @Column(name = \"target_staff_id\")\n+    private Long targetStaffId;\n     \n     @Column(name = \"related_entity_type\")\n     private String relatedEntityType; // QUOTE_REQUEST, QUOTE, INVOICE",
+                    "refToolCallId": "toolu_01YNWdxPHS9zKCH164BfCcQ5"
+                },
+                {
+                    "type": "text",
+                    "text": "Now I need to add the getter and setter for the `targetStaffId` field:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01W4ybDjZeniE4WCDPRVFkLi",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java\n@@ -113,6 +113,14 @@\n         this.recipient = recipient;\n     }\n     \n+    public Long getTargetStaffId() {\n+        return targetStaffId;\n+    }\n+    \n+    public void setTargetStaffId(Long targetStaffId) {\n+        this.targetStaffId = targetStaffId;\n+    }\n+    \n     public String getRelatedEntityType() {\n         return relatedEntityType;\n     }",
+                    "refToolCallId": "toolu_01W4ybDjZeniE4WCDPRVFkLi"
+                },
+                {
+                    "type": "text",
+                    "text": "Now let me check if the Staff model has the required fields (`firstName`, `lastName`, `email`, `isActive`) that are being used in the ChatService:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01DumpEFcywukMiy4RBo6KhW",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Staff.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Staff.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "Let me see more of the Staff model to check if there's an `isActive` field:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01EnV5hD9qprXoSEcCnb5gSq",
+                    "statusText": "Viewed file",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Staff.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Staff.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "text",
+                    "text": "I can see that the Staff model has `firstName`, `lastName`, and `email` fields, but I don't see an `isActive` field. The Staff model uses a `status` field with `StaffStatus` enum instead. I need to update the ChatService to use the correct field. Let me fix this:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_017KT18zpYpTavKZ7vPNSUQg",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java\n@@ -145,7 +145,7 @@\n      */\n     private void assignSessionToAvailableStaff(ChatSession session) {\n         // Trouver un staff disponible (logique simple - peut être améliorée)\n-        List<Staff> availableStaff = staffRepository.findByIsActiveTrue();\n+        List<Staff> availableStaff = staffRepository.findByStatus(Staff.StaffStatus.ACTIVE);\n         if (!availableStaff.isEmpty()) {\n             Staff assignedStaff = availableStaff.get(0); // Assigner au premier disponible\n             session.setAssignedStaff(assignedStaff);",
+                    "refToolCallId": "toolu_017KT18zpYpTavKZ7vPNSUQg"
+                },
+                {
+                    "type": "text",
+                    "text": "Now I can remove the `findByIsActiveTrue()` method from the StaffRepository since it's not needed:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_01FMKEH3KQuu3WqhvpfdqqJf",
+                    "statusText": "Change generated",
+                    "status": "SUCCESS",
+                    "context": {
+                        "files": [
+                            {
+                                "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java",
+                                "fsPath": "/Users/hermann.nana/kinéopolis /nadia-events-decor/../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java"
+                            }
+                        ]
+                    },
+                    "isHidden": false
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java\n+++ ../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java\n@@ -18,8 +18,6 @@\n     List<Staff> findByDepartment(String department);\n     \n     List<Staff> findByStatus(Staff.StaffStatus status);\n-    \n-    List<Staff> findByIsActiveTrue();\n     \n     @Query(\"SELECT COUNT(s) FROM Staff s WHERE s.status = 'ACTIVE'\")\n     Long countActiveStaff();",
+                    "refToolCallId": "toolu_01FMKEH3KQuu3WqhvpfdqqJf"
+                },
+                {
+                    "type": "text",
+                    "text": "Perfect! Now let me run a quick compilation check to see if there are any remaining issues:"
+                },
+                {
+                    "type": "toolCall",
+                    "toolCallId": "toolu_017G712JGwHSuqp5Z9bMtphZ",
+                    "status": "IN_PROGRESS",
+                    "isHidden": true
+                },
+                {
+                    "type": "codePatch",
+                    "diffs": [
+                        {
+                            "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/StaffRepository.java",
+                            "patch": "",
+                            "isNew": false,
+                            "isApplied": false,
+                            "isUnread": true
+                        },
+                        {
+                            "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/ChatSession.java",
+                            "patch": "@@ -0,0 +1,3983 @@\n+package com.nadiaevents.admin.model;%0A%0Aimport javax.persistence.*;%0Aimport java.time.LocalDateTime;%0A%0A@Entity%0A@Table(name = %22chat_sessions%22)%0Apublic class ChatSession %7B%0A    %0A    @Id%0A    @GeneratedValue(strategy = GenerationType.IDENTITY)%0A    private Long id;%0A    %0A    @Column(name = %22session_id%22, unique = true, nullable = false)%0A    private String sessionId;%0A    %0A    @Column(name = %22visitor_name%22, nullable = false)%0A    private String visitorName;%0A    %0A    @Column(name = %22visitor_email%22)%0A    private String visitorEmail;%0A    %0A    @Column(name = %22visitor_phone%22)%0A    private String visitorPhone;%0A    %0A    @Enumerated(EnumType.STRING)%0A    @Column(name = %22status%22, nullable = false)%0A    private SessionStatus status;%0A    %0A    @ManyToOne(fetch = FetchType.LAZY)%0A    @JoinColumn(name = %22assigned_staff_id%22)%0A    private Staff assignedStaff;%0A    %0A    @Column(name = %22created_at%22)%0A    private LocalDateTime createdAt;%0A    %0A    @Column(name = %22last_activity%22)%0A    private LocalDateTime lastActivity;%0A    %0A    @Column(name = %22total_messages%22)%0A    private Integer totalMessages;%0A    %0A    @Column(name = %22unread_messages%22)%0A    private Integer unreadMessages;%0A    %0A    @Column(name = %22closed_at%22)%0A    private LocalDateTime closedAt;%0A    %0A    public enum SessionStatus %7B%0A        ACTIVE, ASSIGNED, CLOSED, ARCHIVED%0A    %7D%0A    %0A    // Constructors%0A    public ChatSession() %7B%0A        this.createdAt = LocalDateTime.now();%0A        this.lastActivity = LocalDateTime.now();%0A        this.status = SessionStatus.ACTIVE;%0A        this.totalMessages = 0;%0A        this.unreadMessages = 0;%0A    %7D%0A    %0A    // Getters and Setters%0A    public Long getId() %7B%0A        return id;%0A    %7D%0A    %0A    public void setId(Long id) %7B%0A        this.id = id;%0A    %7D%0A    %0A    public String getSessionId() %7B%0A        return sessionId;%0A    %7D%0A    %0A    public void setSessionId(String sessionId) %7B%0A        this.sessionId = sessionId;%0A    %7D%0A    %0A    public String getVisitorName() %7B%0A        return visitorName;%0A    %7D%0A    %0A    public void setVisitorName(String visitorName) %7B%0A        this.visitorName = visitorName;%0A    %7D%0A    %0A    public String getVisitorEmail() %7B%0A        return visitorEmail;%0A    %7D%0A    %0A    public void setVisitorEmail(String visitorEmail) %7B%0A        this.visitorEmail = visitorEmail;%0A    %7D%0A    %0A    public String getVisitorPhone() %7B%0A        return visitorPhone;%0A    %7D%0A    %0A    public void setVisitorPhone(String visitorPhone) %7B%0A        this.visitorPhone = visitorPhone;%0A    %7D%0A    %0A    public SessionStatus getStatus() %7B%0A        return status;%0A    %7D%0A    %0A    public void setStatus(SessionStatus status) %7B%0A        this.status = status;%0A    %7D%0A    %0A    public Staff getAssignedStaff() %7B%0A        return assignedStaff;%0A    %7D%0A    %0A    public void setAssignedStaff(Staff assignedStaff) %7B%0A        this.assignedStaff = assignedStaff;%0A    %7D%0A    %0A    public LocalDateTime getCreatedAt() %7B%0A        return createdAt;%0A    %7D%0A    %0A    public void setCreatedAt(LocalDateTime createdAt) %7B%0A        this.createdAt = createdAt;%0A    %7D%0A    %0A    public LocalDateTime getLastActivity() %7B%0A        return lastActivity;%0A    %7D%0A    %0A    public void setLastActivity(LocalDateTime lastActivity) %7B%0A        this.lastActivity = lastActivity;%0A    %7D%0A    %0A    public Integer getTotalMessages() %7B%0A        return totalMessages;%0A    %7D%0A    %0A    public void setTotalMessages(Integer totalMessages) %7B%0A        this.totalMessages = totalMessages;%0A    %7D%0A    %0A    public Integer getUnreadMessages() %7B%0A        return unreadMessages;%0A    %7D%0A    %0A    public void setUnreadMessages(Integer unreadMessages) %7B%0A        this.unreadMessages = unreadMessages;%0A    %7D%0A    %0A    public LocalDateTime getClosedAt() %7B%0A        return closedAt;%0A    %7D%0A    %0A    public void setClosedAt(LocalDateTime closedAt) %7B%0A        this.closedAt = closedAt;%0A    %7D%0A    %0A    @PreUpdate%0A    public void preUpdate() %7B%0A        this.lastActivity = LocalDateTime.now();%0A        if (this.status == SessionStatus.CLOSED && this.closedAt == null) %7B%0A            this.closedAt = LocalDateTime.now();%0A        %7D%0A    %7D%0A%7D\n",
+                            "isNew": true,
+                            "isApplied": false,
+                            "isUnread": true
+                        },
+                        {
+                            "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/service/ChatService.java",
+                            "patch": "@@ -4096,12 +4096,6747 @@\n (staffId);%0A \n+       if (staffOpt.isEmpty()) %7B%0A            throw new RuntimeException(%22Staff non trouv%C3%A9%22);%0A        %7D%0A        %0A        Staff staff = staffOpt.get();%0A        %0A        // Cr%C3%A9er le message%0A        ChatMessage chatMessage = new ChatMessage();%0A        chatMessage.setSessionId(sessionId);%0A        chatMessage.setMessage(message);%0A        chatMessage.setSenderName(staff.getFirstName() + %22 %22 + staff.getLastName());%0A        chatMessage.setSenderEmail(staff.getEmail());%0A        chatMessage.setType(ChatMessage.MessageType.TEXT);%0A        chatMessage.setIsFromVisitor(false);%0A        chatMessage.setAssignedStaff(staff);%0A        %0A        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);%0A        %0A        // Mettre %C3%A0 jour la session%0A        session.setLastActivity(LocalDateTime.now());%0A        session.setTotalMessages(session.getTotalMessages() + 1);%0A        session.setAssignedStaff(staff);%0A        session.setStatus(ChatSession.SessionStatus.ASSIGNED);%0A        chatSessionRepository.save(session);%0A        %0A        // Envoyer via WebSocket%0A        messagingTemplate.convertAndSend(%22/topic/chat/%22 + sessionId, savedMessage);%0A        %0A        return savedMessage;%0A    %7D%0A    %0A    /**%0A     * Assigner une session %C3%A0 un staff disponible%0A     */%0A    private void assignSessionToAvailableStaff(ChatSession session) %7B%0A        // Trouver un staff disponible (logique simple - peut %C3%AAtre am%C3%A9lior%C3%A9e)%0A        List%3CStaff%3E availableStaff = staffRepository.findByStatus(Staff.StaffStatus.ACTIVE);%0A        if (!availableStaff.isEmpty()) %7B%0A            Staff assignedStaff = availableStaff.get(0); // Assigner au premier disponible%0A            session.setAssignedStaff(assignedStaff);%0A            session.setStatus(ChatSession.SessionStatus.ASSIGNED);%0A            chatSessionRepository.save(session);%0A            %0A            // Notifier le staff assign%C3%A9%0A            notifyStaffAssignment(session, assignedStaff);%0A        %7D%0A    %7D%0A    %0A    /**%0A     * Notifier l'%C3%A9quipe d'une nouvelle session de chat%0A     */%0A    private void notifyNewChatSession(ChatSession session) %7B%0A        Notification notification = new Notification();%0A        notification.setTitle(%22Nouvelle session de chat%22);%0A        notification.setMessage(%22Nouvelle session de chat de %22 + session.getVisitorName());%0A        notification.setType(Notification.NotificationType.CHAT_NEW_SESSION);%0A        notification.setRelatedEntityId(session.getId());%0A        notification.setCreatedAt(LocalDateTime.now());%0A        %0A        notificationService.createNotification(notification);%0A        %0A        // Envoyer via WebSocket %C3%A0 tous les staff%0A        messagingTemplate.convertAndSend(%22/topic/notifications/staff%22, notification);%0A    %7D%0A    %0A    /**%0A     * Notifier le staff d'un nouveau message%0A     */%0A    private void notifyStaffOfNewMessage(ChatSession session, ChatMessage message) %7B%0A        if (session.getAssignedStaff() != null) %7B%0A            Notification notification = new Notification();%0A            notification.setTitle(%22Nouveau message de chat%22);%0A            notification.setMessage(%22Nouveau message de %22 + session.getVisitorName());%0A            notification.setType(Notification.NotificationType.CHAT_NEW_MESSAGE);%0A            notification.setRelatedEntityId(session.getId());%0A            notification.setTargetStaffId(session.getAssignedStaff().getId());%0A            notification.setCreatedAt(LocalDateTime.now());%0A            %0A            notificationService.createNotification(notification);%0A            %0A            // Envoyer via WebSocket au staff assign%C3%A9%0A            messagingTemplate.convertAndSend(%22/topic/notifications/staff/%22 + session.getAssignedStaff().getId(), notification);%0A        %7D%0A    %7D%0A    %0A    /**%0A     * Notifier le staff de son assignation %C3%A0 une session%0A     */%0A    private void notifyStaffAssignment(ChatSession session, Staff staff) %7B%0A        Notification notification = new Notification();%0A        notification.setTitle(%22Session de chat assign%C3%A9e%22);%0A        notification.setMessage(%22Vous avez %C3%A9t%C3%A9 assign%C3%A9 %C3%A0 la session de %22 + session.getVisitorName());%0A        notification.setType(Notification.NotificationType.CHAT_ASSIGNMENT);%0A        notification.setRelatedEntityId(session.getId());%0A        notification.setTargetStaffId(staff.getId());%0A        notification.setCreatedAt(LocalDateTime.now());%0A        %0A        notificationService.createNotification(notification);%0A        %0A        // Envoyer via WebSocket au staff assign%C3%A9%0A        messagingTemplate.convertAndSend(%22/topic/notifications/staff/%22 + staff.getId(), notification);%0A    %7D%0A    %0A    /**%0A     * Obtenir toutes les sessions actives%0A     */%0A    public List%3CChatSession%3E getActiveSessions() %7B%0A        return chatSessionRepository.findByStatusOrderByLastActivityDesc(ChatSession.SessionStatus.ACTIVE);%0A    %7D%0A    %0A    /**%0A     * Obtenir les sessions assign%C3%A9es %C3%A0 un staff%0A     */%0A    public List%3CChatSession%3E getSessionsForStaff(Long staffId) %7B%0A        return chatSessionRepository.findByAssignedStaffIdOrderByLastActivityDesc(staffId);%0A    %7D%0A    %0A    /**%0A     * Obtenir les messages d'une session%0A     */%0A    public List%3CChatMessage%3E getSessionMessages(String sessionId) %7B%0A        return chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);%0A    %7D%0A    %0A    /**%0A     * Marquer les messages comme lus%0A     */%0A    public void markMessagesAsRead(String sessionId, Long staffId) %7B%0A        List%3CChatMessage%3E messages = chatMessageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);%0A        for (ChatMessage message : messages) %7B%0A            if (message.getIsFromVisitor() && message.getStatus() == ChatMessage.MessageStatus.SENT) %7B%0A                message.setStatus(ChatMessage.MessageStatus.READ);%0A                chatMessageRepository.save(message);%0A            %7D%0A        %7D%0A        %0A        // Mettre %C3%A0 jour le compteur de messages non lus de la session%0A        Optional%3CChatSession%3E sessionOpt = chatSessionRepository.findBySessionId(sessionId);%0A        if (sessionOpt.isPresent()) %7B%0A            ChatSession session = sessionOpt.get();%0A            session.setUnreadMessages(0);%0A            chatSessionRepository.save(session);%0A        %7D%0A    %7D%0A    %0A    /**%0A     * Fermer une session de chat%0A     */%0A    public void closeSession(String sessionId, Long staffId) %7B%0A        Optional%3CChatSession%3E sessionOpt = chatSessionRepository.findBySessionId(sessionId);%0A        if (sessionOpt.isPresent()) %7B%0A            ChatSession session = sessionOpt.get();%0A            session.setStatus(ChatSession.SessionStatus.CLOSED);%0A            session.setClosedAt(LocalDateTime.now());%0A            chatSessionRepository.save(session);%0A            %0A            // Notifier via WebSocket%0A            messagingTemplate.convertAndSend(%22/topic/chat/%22 + sessionId + %22/status%22, %22CLOSED%22);%0A        %7D%0A    %7D\n",
+                            "isNew": false,
+                            "isApplied": false,
+                            "isUnread": true
+                        },
+                        {
+                            "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/model/Notification.java",
+                            "patch": "@@ -693,32 +693,107 @@\n recipient;%0A    %0A\n+    @Column(name = %22target_staff_id%22)%0A    private Long targetStaffId;%0A    %0A\n     @Column(name\n@@ -1438,16 +1438,77 @@\n VERDUE,%0A\n+        CHAT_NEW_SESSION, CHAT_NEW_MESSAGE, CHAT_ASSIGNMENT,%0A\n         \n@@ -2759,32 +2759,220 @@\n ent;%0A    %7D%0A    %0A\n+    public Long getTargetStaffId() %7B%0A        return targetStaffId;%0A    %7D%0A    %0A    public void setTargetStaffId(Long targetStaffId) %7B%0A        this.targetStaffId = targetStaffId;%0A    %7D%0A    %0A\n     public Strin\n",
+                            "isNew": false,
+                            "isApplied": false,
+                            "isUnread": true
+                        },
+                        {
+                            "path": "../../kinéopolis /nadia-events-decor/admin-service/src/main/java/com/nadiaevents/admin/repository/ChatSessionRepository.java",
+                            "patch": "@@ -0,0 +1,1541 @@\n+package com.nadiaevents.admin.repository;%0A%0Aimport com.nadiaevents.admin.model.ChatSession;%0Aimport org.springframework.data.jpa.repository.JpaRepository;%0Aimport org.springframework.data.jpa.repository.Query;%0Aimport org.springframework.data.repository.query.Param;%0Aimport org.springframework.stereotype.Repository;%0A%0Aimport java.time.LocalDateTime;%0Aimport java.util.List;%0Aimport java.util.Optional;%0A%0A@Repository%0Apublic interface ChatSessionRepository extends JpaRepository%3CChatSession, Long%3E %7B%0A    %0A    Optional%3CChatSession%3E findBySessionId(String sessionId);%0A    %0A    List%3CChatSession%3E findByStatusOrderByLastActivityDesc(ChatSession.SessionStatus status);%0A    %0A    List%3CChatSession%3E findByAssignedStaffIdOrderByLastActivityDesc(Long staffId);%0A    %0A    @Query(%22SELECT s FROM ChatSession s WHERE s.assignedStaff IS NULL AND s.status = 'ACTIVE' ORDER BY s.createdAt ASC%22)%0A    List%3CChatSession%3E findUnassignedActiveSessions();%0A    %0A    @Query(%22SELECT COUNT(s) FROM ChatSession s WHERE s.assignedStaff.id = :staffId AND s.status = 'ACTIVE'%22)%0A    Long countActiveSessionsForStaff(@Param(%22staffId%22) Long staffId);%0A    %0A    @Query(%22SELECT s FROM ChatSession s WHERE s.lastActivity %3C :cutoffTime AND s.status = 'ACTIVE'%22)%0A    List%3CChatSession%3E findInactiveSessions(@Param(%22cutoffTime%22) LocalDateTime cutoffTime);%0A    %0A    @Query(%22SELECT COUNT(s) FROM ChatSession s WHERE s.status = 'ACTIVE' AND s.unreadMessages %3E 0%22)%0A    Long countSessionsWithUnreadMessages();%0A    %0A    List%3CChatSession%3E findByVisitorEmailOrderByCreatedAtDesc(String visitorEmail);%0A%7D\n",
+                            "isNew": true,
+                            "isApplied": false,
+                            "isUnread": true
+                        }
+                    ]
+                },
+                {
+                    "type": "shellCommand",
+                    "command": "cd \"/Users/hermann.nana/kinéopolis /nadia-events-decor/admin-service\" && mvn compile -q",
+                    "id": "a3aa1c42-4b3f-4b3f-b0b8-d6a9047a2bc3",
+                    "status": "CONFIRMATION",
+                    "toolCallId": "toolu_017G712JGwHSuqp5Z9bMtphZ",
+                    "commandsRequiringConfirmation": [
+                        {
+                            "name": "mvn",
+                            "arguments": [
+                                "compile",
+                                "-q"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "context": {
+                "author": "Coding Agent",
+                "operationId": "08577647-e946-4faa-b3de-63eb94f167fe"
+            },
+            "createdAt": 1752141912531,
+            "isInternal": false
+        }
+    ],
+    "isAgent": true,
+    "isNameGenerated": true,
+    "isCustomAgent": false
+}
+}

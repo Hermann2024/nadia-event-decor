@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ai.zencoder.plugin.chat.index">
+    <option name="chatMetadata" value="{&quot;1534f792-3b2a-41af-8f72-d828940b948a&quot;:{&quot;id&quot;:&quot;1534f792-3b2a-41af-8f72-d828940b948a&quot;,&quot;title&quot;:&quot;Java Code Error Resolution&quot;,&quot;createdAt&quot;:1752141910188,&quot;updatedAt&quot;:1752142103908,&quot;isAgent&quot;:true,&quot;isNameGenerated&quot;:true,&quot;messageCount&quot;:2,&quot;lastMessagePreview&quot;:&quot;I can see the issue in the ChatService.java file. The error indicates that the `findBySessionId(Stri...&quot;}}" />
+  </component>
+</project>

@@ -1,0 +1,446 @@
+import React, { useState, useEffect } from 'react';
+import API_CONFIG from '../config/api';
+import './AccountingManagement.css';
+import { formatCurrency } from '../utils/currencyFormatter';
+
+const AccountingManagement = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [stats, setStats] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  const [formData, setFormData] = useState({
+    description: '',
+    amount: '',
+    type: 'EXPENSE',
+    category: 'OTHER',
+    status: 'PENDING',
+    transactionDate: new Date().toISOString().split('T')[0],
+    transactionNumber: '',
+    reference: '',
+    notes: ''
+  });
+
+  const types = ['INCOME', 'EXPENSE'];
+  const categories = {
+    INCOME: ['SALES', 'OTHER'],
+    EXPENSE: ['OTHER', 'SALARY', 'MARKETING', 'MAINTENANCE']
+  };
+  const statuses = ['PENDING', 'COMPLETED', 'CANCELLED'];
+
+  useEffect(() => {
+    fetchTransactions();
+    fetchStats();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_CONFIG.BASE_URL}/accounting`);
+      if (!response.ok) throw new Error('Erreur lors du chargement des transactions');
+      const data = await response.json();
+      setTransactions(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/accounting/stats`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des statistiques:', err);
+    }
+  };
+
+  const fetchMonthlyStats = async (year) => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/accounting/stats/monthly/${year}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement des statistiques mensuelles:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const dataToSend = {
+        description: formData.description.trim(),
+        amount: parseFloat(formData.amount),
+        type: formData.type,
+        category: formData.category,
+        status: formData.status,
+        transactionDate: formData.transactionDate ? new Date(formData.transactionDate).toISOString() : new Date().toISOString(),
+        transactionNumber: formData.transactionNumber || null,
+        referenceNumber: formData.reference || null,
+        notes: formData.notes || null
+      };
+
+      if (!dataToSend.amount || isNaN(dataToSend.amount) || dataToSend.amount <= 0) {
+        setError("Le montant doit être un nombre supérieur à 0");
+        return;
+      }
+
+      if (!dataToSend.description || dataToSend.description.trim() === '') {
+        setError("La description est obligatoire");
+        return;
+      }
+
+      const url = editingTransaction 
+        ? `${API_CONFIG.BASE_URL}/accounting/${editingTransaction.id}`
+        : `${API_CONFIG.BASE_URL}/accounting`;
+      
+      const method = editingTransaction ? 'PUT' : 'POST';
+      
+      console.log('Données envoyées:', dataToSend);
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSend)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erreur serveur:', errorData);
+        throw new Error(errorData.error || 'Erreur lors de la sauvegarde');
+      }
+
+      const result = await response.json();
+      console.log('Réponse serveur:', result);
+
+      await fetchTransactions();
+      await fetchStats();
+      resetForm();
+      setShowForm(false);
+      setError(null);
+    } catch (err) {
+      console.error('Erreur complète:', err);
+      setError(err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) return;
+    
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/accounting/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) throw new Error('Erreur lors de la suppression');
+      
+      await fetchTransactions();
+      await fetchStats();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleEdit = (transaction) => {
+    setEditingTransaction(transaction);
+    setFormData({
+      description: transaction.description || '',
+      amount: transaction.amount?.toString() || '',
+      type: transaction.type || 'EXPENSE',
+      category: transaction.category || 'OTHER',
+      status: transaction.status || 'PENDING',
+      transactionDate: transaction.transactionDate ? transaction.transactionDate.split('T')[0] : new Date().toISOString().split('T')[0],
+      transactionNumber: transaction.transactionNumber || '',
+      reference: transaction.referenceNumber || '',
+      notes: transaction.notes || ''
+    });
+    setShowForm(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      description: '',
+      amount: '',
+      type: 'EXPENSE',
+      category: 'OTHER',
+      status: 'PENDING',
+      transactionDate: new Date().toISOString().split('T')[0],
+      transactionNumber: '',
+      reference: '',
+      notes: ''
+    });
+    setEditingTransaction(null);
+  };
+
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (transaction.transactionNumber && transaction.transactionNumber.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesType = !filterType || transaction.type === filterType;
+    const matchesCategory = !filterCategory || transaction.category === filterCategory;
+    const matchesStatus = !filterStatus || transaction.status === filterStatus;
+    
+    return matchesSearch && matchesType && matchesCategory && matchesStatus;
+  });
+
+
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'COMPLETED': return 'status-completed';
+      case 'PENDING': return 'status-pending';
+      case 'CANCELLED': return 'status-cancelled';
+      default: return 'status-default';
+    }
+  };
+
+  const getTypeColor = (type) => {
+    return type === 'INCOME' ? 'type-income' : 'type-expense';
+  };
+
+  if (loading) return <div className="loading">Chargement des transactions...</div>;
+  if (error) return <div className="error">Erreur: {error}</div>;
+
+  return (
+    <div className="accounting-management">
+      <div className="accounting-header">
+        <h2>Gestion Comptable</h2>
+        <button className="btn-primary" onClick={() => setShowForm(true)}>
+          Nouvelle Transaction
+        </button>
+      </div>
+
+      {/* Statistiques */}
+      <div className="stats-grid">
+        <div className="stat-card total-revenue">
+          <h3>Revenus Totaux</h3>
+          <p className="stat-number">{stats.totalIncome ? formatCurrency(stats.totalIncome) : '0 FCFA'}</p>
+        </div>
+        
+        <div className="stat-card total-expenses">
+          <h3>Dépenses Totales</h3>
+          <p className="stat-number">{stats.totalExpenses ? formatCurrency(stats.totalExpenses) : '0 FCFA'}</p>
+        </div>
+        
+        <div className="stat-card net-profit">
+          <h3>Bénéfice Net</h3>
+          <p className="stat-number">{stats.netProfit ? formatCurrency(stats.netProfit) : '0 FCFA'}</p>
+        </div>
+      </div>
+
+      {/* Filtres */}
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Rechercher..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+          <option value="">Tous les types</option>
+          {types.map(type => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
+        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+          <option value="">Toutes les catégories</option>
+          {Array.from(new Set(Object.values(categories).flat())).map(category => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+          <option value="">Tous les statuts</option>
+          {statuses.map(status => (
+            <option key={status} value={status}>{status}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Formulaire */}
+      {showForm && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>{editingTransaction ? 'Modifier' : 'Nouvelle'} Transaction</h3>
+              <button onClick={() => { setShowForm(false); resetForm(); }}>&times;</button>
+            </div>
+            <form onSubmit={handleSubmit} className="accounting-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Description *</label>
+                  <input
+                    type="text"
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Montant (FCFA) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({...formData, amount: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Type *</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData, 
+                        type: e.target.value,
+                        category: categories[e.target.value][0]
+                      });
+                    }}
+                    required
+                  >
+                    {types.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Catégorie *</label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    required
+                  >
+                    {categories[formData.type]?.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date de transaction *</label>
+                  <input
+                    type="date"
+                    value={formData.transactionDate}
+                    onChange={(e) => setFormData({...formData, transactionDate: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Statut</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  >
+                    {statuses.map(status => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Numéro de transaction</label>
+                  <input
+                    type="text"
+                    value={formData.transactionNumber}
+                    onChange={(e) => setFormData({...formData, transactionNumber: e.target.value})}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Référence</label>
+                  <input
+                    type="text"
+                    value={formData.reference}
+                    onChange={(e) => setFormData({...formData, reference: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  rows="3"
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="btn-primary">
+                  {editingTransaction ? 'Modifier' : 'Ajouter'}
+                </button>
+                <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="btn-secondary">
+                  Annuler
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Liste des transactions */}
+      <div className="transactions-list">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Type</th>
+              <th>Catégorie</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTransactions.map(transaction => (
+              <tr key={transaction.id}>
+                <td>{new Date(transaction.transactionDate).toLocaleDateString('fr-FR')}</td>
+                <td>{transaction.description}</td>
+                <td>
+                  <span className={`type-badge ${getTypeColor(transaction.type)}`}>
+                    {transaction.type}
+                  </span>
+                </td>
+                <td>{transaction.category}</td>
+                <td className={transaction.type === 'INCOME' ? 'amount-income' : 'amount-expense'}>
+                  {formatCurrency(transaction.amount)}
+                </td>
+                <td>
+                  <span className={`status-badge ${getStatusColor(transaction.status)}`}>
+                    {transaction.status}
+                  </span>
+                </td>
+                <td>
+                  <button onClick={() => handleEdit(transaction)} className="btn-edit">Modifier</button>
+                  <button onClick={() => handleDelete(transaction.id)} className="btn-delete">Supprimer</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default AccountingManagement;

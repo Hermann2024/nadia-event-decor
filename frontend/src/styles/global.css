@@ -1,0 +1,346 @@
+/* Variables CSS pour les couleurs du thème */
+:root {
+  --primary-green: #32CD32; /* Vert citron */
+  --secondary-green: #228B22; /* Vert forêt */
+  --accent-green: #90EE90; /* Vert clair */
+  --dark-green: #006400; /* Vert foncé */
+  --light-green: #F0FFF0; /* Vert très clair */
+  --white: #FFFFFF;
+  --black: #000000;
+  --gray: #666666;
+  --light-gray: #F5F5F5;
+  --gold: #FFD700;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+  --gradient-accent: linear-gradient(135deg, var(--accent-green), var(--primary-green));
+}
+
+/* Reset et styles de base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--black);
+  background: var(--light-green);
+  overflow-x: hidden;
+}
+
+/* Typographie */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: var(--dark-green);
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 2.5rem;
+}
+
+h3 {
+  font-size: 2rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  color: var(--gray);
+}
+
+/* Boutons */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: var(--white);
+  box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(50, 205, 50, 0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-green);
+  border: 2px solid var(--primary-green);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-green);
+  color: var(--white);
+}
+
+/* Animations de flocons de neige */
+.snowflake {
+  position: fixed;
+  top: -10px;
+  z-index: 1000;
+  user-select: none;
+  cursor: default;
+  animation-name: snowflakes-fall, snowflakes-shake;
+  animation-duration: 10s, 3s;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-play-state: running, running;
+}
+
+@keyframes snowflakes-fall {
+  0% {
+    top: -10px;
+  }
+  100% {
+    top: 100vh;
+  }
+}
+
+@keyframes snowflakes-shake {
+  0% {
+    transform: translateX(0px);
+  }
+  50% {
+    transform: translateX(80px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+/* Génération automatique de flocons */
+.snowflake:nth-of-type(1) {
+  left: 10%;
+  animation-delay: 1s, 1s;
+}
+
+.snowflake:nth-of-type(2) {
+  left: 20%;
+  animation-delay: 6s, 0.5s;
+}
+
+.snowflake:nth-of-type(3) {
+  left: 30%;
+  animation-delay: 4s, 2s;
+}
+
+.snowflake:nth-of-type(4) {
+  left: 40%;
+  animation-delay: 2s, 2s;
+}
+
+.snowflake:nth-of-type(5) {
+  left: 50%;
+  animation-delay: 8s, 3s;
+}
+
+.snowflake:nth-of-type(6) {
+  left: 60%;
+  animation-delay: 6s, 2s;
+}
+
+.snowflake:nth-of-type(7) {
+  left: 70%;
+  animation-delay: 2.5s, 1s;
+}
+
+.snowflake:nth-of-type(8) {
+  left: 80%;
+  animation-delay: 1s, 0s;
+}
+
+.snowflake:nth-of-type(9) {
+  left: 90%;
+  animation-delay: 3s, 1.5s;
+}
+
+.snowflake:nth-of-type(10) {
+  left: 25%;
+  animation-delay: 2s, 0s;
+}
+
+.snowflake:nth-of-type(11) {
+  left: 65%;
+  animation-delay: 4s, 2.5s;
+}
+
+/* Conteneurs et layouts */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: 80px 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title h2 {
+  color: var(--dark-green);
+  margin-bottom: 20px;
+}
+
+.section-title p {
+  color: var(--gray);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Cartes et composants */
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px var(--shadow);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(50, 205, 50, 0.1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(50, 205, 50, 0.15);
+}
+
+/* Grilles */
+.grid {
+  display: grid;
+  gap: 30px;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* Effets de survol */
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  .section {
+    padding: 60px 0;
+  }
+  
+  .container {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Utilitaires */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+/* Animations d'entrée */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--light-green);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-green);
+} 

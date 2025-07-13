@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation de votre demande de devis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #FF6B6B, #EE5A24);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+        }
+        .success-box {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .info-box {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+        }
+        .contact-info {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .timeline {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background: #FF6B6B;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Demande de devis reçue !</h1>
+        <p>Nadia Event's Decor</p>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour <strong th:text="${request.name}">Client</strong>,</p>
+        
+        <div class="success-box">
+            <h3>✅ Votre demande de devis a été envoyée avec succès !</h3>
+            <p>Nous avons bien reçu votre demande et notre équipe va l'étudier attentivement.</p>
+        </div>
+        
+        <div class="info-box">
+            <h4>📋 Récapitulatif de votre demande :</h4>
+            <p><strong>Type d'événement :</strong> <span th:text="${request.eventType}">Type</span></p>
+            <p th:if="${request.eventDate}"><strong>Date de l'événement :</strong> <span th:text="${request.eventDate}">Date</span></p>
+            <p th:if="${request.eventLocation}"><strong>Lieu :</strong> <span th:text="${request.eventLocation}">Lieu</span></p>
+            <p th:if="${request.guestCount}"><strong>Nombre d'invités :</strong> <span th:text="${request.guestCount}">Nombre</span></p>
+            <p th:if="${request.budget}"><strong>Budget :</strong> <span th:text="${request.budget}">Budget</span></p>
+            <p><strong>Date de demande :</strong> <span th:text="${timestamp}">date</span></p>
+        </div>
+        
+        <div class="timeline">
+            <h4>⏰ Prochaines étapes :</h4>
+            <ol>
+                <li><strong>Dans les 24h :</strong> Notre équipe vous contactera pour discuter de vos besoins</li>
+                <li><strong>Dans les 48h :</strong> Vous recevrez un devis détaillé par email</li>
+                <li><strong>Suivi :</strong> Nous resterons en contact pour ajuster le devis si nécessaire</li>
+            </ol>
+        </div>
+        
+        <div class="contact-info">
+            <h4>📞 Nos coordonnées :</h4>
+            <p><strong>Téléphone :</strong> +237 680 207 496</p>
+            <p><strong>Téléphone :</strong> +237 657 759 510</p>
+            <p><strong>Téléphone :</strong> +237 699 275 786</p>
+            <p><strong>Email :</strong> nadiaeventsdeco@gmail.com</p>
+            <p><strong>Adresse :</strong> Yaoundé, Cameroun</p>
+        </div>
+        
+        <p><strong>En attendant notre réponse :</strong></p>
+        <a href="http://localhost:3000/products" class="btn">Découvrir nos produits</a>
+        <a href="http://localhost:3000/about" class="btn">En savoir plus sur nous</a>
+        
+        <p><strong>Questions urgentes ?</strong><br>
+        N'hésitez pas à nous appeler directement pour toute question urgente.</p>
+        
+        <p>Cordialement,<br>
+        <strong>L'équipe Nadia Event's Decor</strong><br>
+        <em>Votre partenaire pour des événements inoubliables</em></p>
+    </div>
+    
+    <div class="footer">
+        <p>Ce message a été envoyé automatiquement en confirmation de votre demande de devis.</p>
+        <p>© 2024 Nadia Event's Decor - Tous droits réservés</p>
+    </div>
+</body>
+</html> 

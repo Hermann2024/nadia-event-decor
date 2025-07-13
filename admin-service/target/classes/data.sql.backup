@@ -1,0 +1,73 @@
+-- Données de test pour le personnel
+INSERT INTO staff (first_name, last_name, email, phone, position, department, salary, hire_date, status, address, emergency_contact, emergency_phone, notes, created_at, updated_at) VALUES 
+('Nadine', 'Kechiamen Nganou', 'nadine@nadiaevents.com', '+237 6 12 34 56 78', 'Fondatrice et Directrice Creative', 'Direction', 500000.0, '2020-01-15 09:00:00', 'ACTIVE', 'Douala, Cameroun', 'Jean Kechiamen', '+237 6 98 76 54 32', 'Fondatrice de l''entreprise', NOW(), NOW()),
+('Marie', 'Tchokouani', 'marie@nadiaevents.com', '+237 6 11 22 33 44', 'Decoratrice Senior', 'Decoration', 350000.0, '2020-03-20 09:00:00', 'ACTIVE', 'Douala, Cameroun', 'Pierre Tchokouani', '+237 6 55 44 33 22', 'Specialiste decoration evenementielle', NOW(), NOW()),
+('Sarah', 'Mbangue', 'sarah@nadiaevents.com', '+237 6 22 33 44 55', 'Coordinatrice Evenements', 'Evenementiel', 300000.0, '2020-06-10 09:00:00', 'ACTIVE', 'Douala, Cameroun', 'Paul Mbangue', '+237 6 66 55 44 33', 'Coordination et planification', NOW(), NOW()),
+('David', 'Etoa', 'david@nadiaevents.com', '+237 6 33 44 55 66', 'Technicien Eclairage', 'Technique', 250000.0, '2021-01-15 09:00:00', 'ACTIVE', 'Douala, Cameroun', 'Anne Etoa', '+237 6 77 66 55 44', 'Installation et maintenance eclairage', NOW(), NOW()),
+('Claire', 'Nguemo', 'claire@nadiaevents.com', '+237 6 44 55 66 77', 'Commerciale', 'Commercial', 280000.0, '2021-03-01 09:00:00', 'ACTIVE', 'Douala, Cameroun', 'Marc Nguemo', '+237 6 88 77 66 55', 'Developpement commercial', NOW(), NOW());
+
+-- Données de test pour les factures
+INSERT INTO invoices (invoice_number, client_name, client_email, client_phone, event_date, event_type, event_location, subtotal, tax_amount, total_amount, status, payment_method, payment_date, due_date, notes, created_at, updated_at) VALUES 
+('INV-001', 'Mariage Dupont', 'dupont@email.com', '+237 6 11 11 11 11', '2024-02-15 18:00:00', 'Mariage', 'Hotel Hilton, Douala', 2200.0, 300.0, 2500.0, PAID, 'Virement bancaire', '2024-01-20 10:00:00', '2024-01-30 23:59:59', 'Mariage de luxe avec decoration complete', NOW(), NOW()),
+('INV-002', 'Entreprise ABC', 'contact@abc.com', '+237 6 22 22 22 22', '2024-02-20 09:00:00', 'Evenement d''entreprise', 'Centre de conferences, Douala', 1500.0, 300.0, 1800.0, SENT, 'Cheque', NULL, '2024-02-10 23:59:59', 'Seminaire annuel', NOW(), NOW()),
+('INV-003', 'Anniversaire Martin', 'martin@email.com', '+237 6 33 33 33 33', '2024-02-25 19:00:00', 'Anniversaire', 'Residence privee, Douala', 800.0, 150.0, 950.0, PAID, 'Especes', '2024-01-25 15:30:00', '2024-02-15 23:59:59', 'Anniversaire 50 ans', NOW(), NOW()),
+('INV-004', 'Evenement Corp', 'events@corp.com', '+237 6 44 44 44 44', '2024-03-01 10:00:00', 'Lancement produit', 'Palais des Congres, Yaounde', 2800.0, 400.0, 3200.0, SENT, 'Carte bancaire', NULL, '2024-02-20 23:59:59', 'Lancement nouveau produit', NOW(), NOW());
+
+-- Données de test pour les éléments de facture
+INSERT INTO invoice_items (invoice_id, product_name, product_description, quantity, unit_price, total_price, notes) VALUES 
+(1, 'Decoration florale', 'Bouquets et arrangements floraux', 10, 150.0, 1500.0, 'Fleurs de saison'),
+(1, 'Eclairage d''ambiance', 'Installation eclairage LED', 1, 500.0, 500.0, 'Eclairage programmable'),
+(1, 'Mobilier evenementiel', 'Chaises et tables de reception', 1, 200.0, 200.0, 'Mobilier premium'),
+(2, 'Decoration corporate', 'Bannieres et affichage', 5, 200.0, 1000.0, 'Design personnalise'),
+(2, 'Systeme sonorisation', 'Installation audio professionnelle', 1, 500.0, 500.0, 'Son surround'),
+(3, 'Decoration anniversaire', 'Ballons et accessoires', 1, 600.0, 600.0, 'Theme dore'),
+(3, 'Gateau decoratif', 'Gateau personnalise', 1, 200.0, 200.0, 'Gateau 3 etages'),
+(4, 'Stand d''exposition', 'Stand modulaire 3x3m', 1, 1500.0, 1500.0, 'Stand avec eclairage'),
+(4, 'Decoration corporate', 'Bannieres et roll-up', 8, 150.0, 1200.0, 'Identite visuelle'),
+(4, 'Service technique', 'Installation et demontage', 1, 100.0, 100.0, 'Service complet');
+
+-- Données de test pour les devis
+INSERT INTO quotes (quote_number, client_name, client_email, client_phone, event_date, event_type, event_location, subtotal, tax_amount, total_amount, status, valid_until, accepted_date, rejected_date, rejection_reason, notes, created_at, updated_at) VALUES 
+('QT-001', 'Mariage Garcia', 'garcia@email.com', '+237 6 55 55 55 55', '2024-03-15 18:00:00', 'Mariage', 'Chateau de la Benoue, Garoua', 3000.0, 500.0, 3500.0, SENT, '2024-02-15 23:59:59', NULL, NULL, NULL, 'Mariage de luxe avec 200 invites', NOW(), NOW()),
+('QT-002', 'Entreprise XYZ', 'contact@xyz.com', '+237 6 66 66 66 66', '2024-03-20 09:00:00', 'Conference', 'Hotel Mont Febe, Yaounde', 1800.0, 300.0, 2100.0, ACCEPTED, '2024-02-20 23:59:59', '2024-02-10 14:30:00', NULL, NULL, 'Conference internationale', NOW(), NOW()),
+('QT-003', 'Anniversaire Lopez', 'lopez@email.com', '+237 6 77 77 77 77', '2024-03-25 19:00:00', 'Anniversaire', 'Residence privee, Douala', 1000.0, 200.0, 1200.0, SENT, '2024-02-25 23:59:59', NULL, NULL, NULL, 'Anniversaire surprise', NOW(), NOW());
+
+-- Données de test pour les éléments de devis
+INSERT INTO quote_items (quote_id, product_name, product_description, quantity, unit_price, total_price, notes) VALUES 
+(1, 'Decoration florale premium', 'Bouquets et arrangements luxueux', 15, 180.0, 2700.0, 'Fleurs exotiques'),
+(1, 'Eclairage architectural', 'Eclairage du chateau', 1, 300.0, 300.0, 'Eclairage d''accent'),
+(2, 'Decoration conference', 'Bannieres et affichage corporate', 10, 150.0, 1500.0, 'Design professionnel'),
+(2, 'Systeme audiovisuel', 'Projection et sonorisation', 1, 300.0, 300.0, 'Equipement HD'),
+(3, 'Decoration anniversaire', 'Ballons et accessoires festifs', 1, 800.0, 800.0, 'Theme colore'),
+(3, 'Animation', 'DJ et eclairage', 1, 200.0, 200.0, 'Animation 4h'),
+(3, 'Service traiteur', 'Buffet cocktail', 1, 200.0, 200.0, 'Service complet');
+
+-- Données de test pour les transactions comptables
+INSERT INTO accounting_transaction (transaction_type, amount, description, transaction_date, category, reference, status, created_at, updated_at) VALUES 
+(INCOME, 1500000.0, 'Mariage Douala - Decoration complete', '2024-01-15 10:00:00', SALES, 'EVT-2024-001', COMPLETED, NOW(), NOW()),
+(EXPENSE, 250000.0, 'Achat materiel decoration', '2024-01-10 14:30:00', PURCHASES, 'MAT-2024-001', COMPLETED, NOW(), NOW()),
+(INCOME, 800000.0, 'Anniversaire entreprise - Eclairage', '2024-01-20 16:00:00', SALES, 'EVT-2024-002', COMPLETED, NOW(), NOW()),
+(EXPENSE, 120000.0, 'Salaires personnel janvier', '2024-01-31 09:00:00', SALARY, 'SAL-2024-001', COMPLETED, NOW(), NOW()),
+(INCOME, 2000000.0, 'Conference internationale - Setup complet', '2024-02-05 11:00:00', SALES, 'EVT-2024-003', PENDING, NOW(), NOW()),
+(EXPENSE, 180000.0, 'Transport materiel', '2024-02-01 08:00:00', OTHER, 'TRP-2024-001', COMPLETED, NOW(), NOW()),
+(INCOME, 600000.0, 'Bapteme - Decoration simple', '2024-02-10 15:00:00', SALES, 'EVT-2024-004', COMPLETED, NOW(), NOW()),
+(EXPENSE, 95000.0, 'Maintenance equipements', '2024-02-08 13:00:00', MAINTENANCE, 'MNT-2024-001', COMPLETED, NOW(), NOW()),
+(INCOME, 1200000.0, 'Exposition art - Installation', '2024-02-15 10:00:00', SALES, 'EVT-2024-005', PENDING, NOW(), NOW()),
+(EXPENSE, 150000.0, 'Salaires personnel fevrier', '2024-02-29 09:00:00', SALARY, 'SAL-2024-002', PENDING, NOW(), NOW());
+
+-- Données de test pour les produits
+INSERT INTO products (name, description, price, category, available, created_at, updated_at) VALUES 
+('Decoration florale', 'Bouquets et arrangements floraux personnalises', 150.0, 'Decoration', TRUE, NOW(), NOW()),
+('Eclairage LED', 'Systeme d''eclairage LED programmable', 500.0, 'Eclairage', TRUE, NOW(), NOW()),
+('Mobilier evenementiel', 'Chaises et tables de reception', 200.0, 'Mobilier', TRUE, NOW(), NOW()),
+('Systeme sonorisation', 'Installation audio professionnelle', 500.0, 'Audio', TRUE, NOW(), NOW()),
+('Bannieres personnalisees', 'Bannieres et affichage sur mesure', 200.0, 'Affichage', TRUE, NOW(), NOW()),
+('Gateau decoratif', 'Gateaux personnalises pour evenements', 200.0, 'Traiteur', TRUE, NOW(), NOW()),
+('Stand d''exposition', 'Stand modulaire 3x3m avec eclairage', 1500.0, 'Exposition', TRUE, NOW(), NOW()),
+('Animation DJ', 'Service DJ avec eclairage', 300.0, 'Animation', TRUE, NOW(), NOW());
+
+-- Données de test pour les posts
+INSERT INTO posts (title, content, author, published, published_at, created_at, updated_at) VALUES 
+('Nouveaux services de decoration', 'Nous sommes ravis d''annoncer l''ajout de nouveaux services de decoration pour vos evenements...', 'Nadine Kechiamen', TRUE, '2024-01-15 10:00:00', NOW(), NOW()),
+('Tendances decoration 2024', 'Decouvrez les dernieres tendances en matiere de decoration d''evenements pour 2024...', 'Marie Tchokouani', TRUE, '2024-01-20 14:30:00', NOW(), NOW()),
+('Evenements reussis en janvier', 'Retour sur nos plus beaux evenements du mois de janvier 2024...', 'Sarah Mbangue', FALSE, NULL, NOW(), NOW()); 
