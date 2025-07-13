@@ -35,14 +35,16 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: nadiaeventsdecor@gmail.com
-    password: Nadia2025
+    username: nadiaeventsdeco@gmail.com
+    password: ${MAIL_PASSWORD:eeuijxtzqavszwih}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+          ssl:
+            trust: smtp.gmail.com
     default-encoding: UTF-8
   thymeleaf:
     cache: false
@@ -72,9 +74,9 @@ management:
 nadia:
   events:
     contact:
-      email: nadiaeventsdecor@gmail.com
+      email: nadiaeventsdeco@gmail.com
     admin:
-      email: nadiaeventsdecor@gmail.com
+      email: nadiaeventsdeco@gmail.com
     company:
       name: Nadia Events Decor
       phone: "+237 680 207 496"
@@ -89,9 +91,9 @@ security:
 
 app:
   email:
-    enabled: ${EMAIL_ENABLED:true}
-    from: ${EMAIL_FROM:nadiaeventsdecor@gmail.com}
-    admin: ${ADMIN_EMAIL:nadiaeventsdecor@gmail.com}
+    enabled: true
+    from: nadiaeventsdeco@gmail.com
+    admin: nadiaeventsdeco@gmail.com
     templates:
       quote: quote-email
       invoice: invoice-email
@@ -125,3 +127,4 @@ logging:
     com.nadiaevents.admin: DEBUG
     org.springframework.web: DEBUG
     org.springframework.messaging: DEBUG
+    org.springframework.mail: DEBUG

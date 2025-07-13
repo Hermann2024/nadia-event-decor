@@ -200,8 +200,8 @@ public class EmailService {
     }
     
     public void sendAdminNotification(String subject, String message) {
-        // ⚠️ CORRECTION : Utiliser nadiaevents@gmail.com au lieu de admin@nadia-events-decor.com
-        String adminEmail = "nadiaevents@gmail.com";
+        // ⚠️ CORRECTION : Utiliser nadiaeventsdeco@gmail.com
+        String adminEmail = "nadiaeventsdeco@gmail.com";
         sendEmail(adminEmail, subject, message);
     }
 } 

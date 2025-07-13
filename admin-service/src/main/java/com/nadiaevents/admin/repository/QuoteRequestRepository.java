@@ -38,4 +38,8 @@ public interface QuoteRequestRepository extends JpaRepository<QuoteRequest, Long
     List<QuoteRequest> findByOrderByCreatedAtDesc();
     
     List<QuoteRequest> findByOrderByPriorityAscCreatedAtDesc();
+    
+    List<QuoteRequest> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+    
+    List<QuoteRequest> findByRequestNumberStartingWithOrderByRequestNumberDesc(String prefix);
 } 

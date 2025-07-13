@@ -45,6 +45,21 @@ public class QuoteRequestService {
         // Envoyer un email de confirmation au client
         emailService.sendQuoteRequestConfirmation(savedRequest);
         
+        // Envoyer un email à Nadine pour notification
+        emailService.sendAdminNotification(
+            "Nouvelle demande de devis - " + savedRequest.getRequestNumber(),
+            "Une nouvelle demande de devis a été reçue :\n\n" +
+            "Client : " + savedRequest.getClientName() + "\n" +
+            "Email : " + savedRequest.getClientEmail() + "\n" +
+            "Téléphone : " + savedRequest.getClientPhone() + "\n" +
+            "Type d'événement : " + savedRequest.getEventType() + "\n" +
+            "Lieu : " + savedRequest.getEventLocation() + "\n" +
+            "Nombre d'invités : " + savedRequest.getGuestCount() + "\n" +
+            "Budget : " + savedRequest.getBudgetRange() + "\n" +
+            "Message : " + savedRequest.getDescription() + "\n\n" +
+            "Numéro de demande : " + savedRequest.getRequestNumber()
+        );
+        
         return savedRequest;
     }
     
@@ -142,12 +157,16 @@ public class QuoteRequestService {
         LocalDateTime now = LocalDateTime.now();
         String datePrefix = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         
-        // Compter les demandes créées aujourd'hui
-        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        // Trouver le dernier numéro de séquence pour aujourd'hui
+        String todayPrefix = "QR-" + datePrefix + "-";
+        List<QuoteRequest> todayRequests = quoteRequestRepository.findByRequestNumberStartingWithOrderByRequestNumberDesc(todayPrefix);
         
-        List<QuoteRequest> todayRequests = quoteRequestRepository.findByEventDateBetween(startOfDay, endOfDay);
-        int sequenceNumber = todayRequests.size() + 1;
+        int sequenceNumber = 1;
+        if (!todayRequests.isEmpty()) {
+            String lastNumber = todayRequests.get(0).getRequestNumber();
+            String lastSequence = lastNumber.substring(lastNumber.lastIndexOf("-") + 1);
+            sequenceNumber = Integer.parseInt(lastSequence) + 1;
+        }
         
         return String.format("QR-%s-%03d", datePrefix, sequenceNumber);
     }
