@@ -1,0 +1,82 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-nadia
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nadia_events_decor
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    depends_on:
+      - mysql
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/nadia_events_decor
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - mysql
+      - eureka-server
+
+  admin-service:
+    build: ./admin-service
+    container_name: admin-service
+    ports:
+      - "8082:8080"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/nadia_events_decor
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - mysql
+      - eureka-server
+
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    ports:
+      - "8081:8080"
+    environment:
+      - JAVA_OPTS=-Xms256m -Xmx512m
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/nadia_events_decor
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - mysql
+      - eureka-server
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://gateway-service:8080
+    depends_on:
+      - gateway-service
+
+volumes:
+  mysql_data: 
